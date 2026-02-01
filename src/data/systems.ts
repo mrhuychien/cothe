@@ -19,7 +19,7 @@ export const bodySystems: SystemInfo[] = [
         system: 'skeletal',
         funFactVi: 'Hộp sọ gồm 22 mảnh xương ghép lại với nhau!',
         funFactEn: 'The skull is made up of 22 bones fused together!',
-        position: [0, 1.6, 0],
+        position: [0, 0.75, 0.12],
       },
       {
         id: 'spine',
@@ -30,7 +30,7 @@ export const bodySystems: SystemInfo[] = [
         system: 'skeletal',
         funFactVi: 'Buổi sáng bạn cao hơn buổi tối khoảng 1cm vì cột sống bị nén trong ngày!',
         funFactEn: 'You are about 1cm taller in the morning because your spine compresses during the day!',
-        position: [0, 0.8, -0.1],
+        position: [0, 0.3, -0.05],
       },
       {
         id: 'ribcage',
@@ -41,7 +41,7 @@ export const bodySystems: SystemInfo[] = [
         system: 'skeletal',
         funFactVi: 'Xương sườn có thể uốn cong một chút để bạn thở được!',
         funFactEn: 'Your ribs can bend a little so you can breathe!',
-        position: [0, 1.1, 0],
+        position: [0.12, 0.45, 0.08],
       },
     ],
   },
@@ -51,7 +51,7 @@ export const bodySystems: SystemInfo[] = [
     nameEn: 'Muscular System',
     descriptionVi: 'Hệ cơ gồm hơn 600 cơ, giúp cơ thể di chuyển và thực hiện các hoạt động.',
     descriptionEn: 'The muscular system has over 600 muscles, helping the body move and perform activities.',
-    color: '#FFB3B3',
+    color: '#CD5C5C',
     icon: '💪',
     organs: [
       {
@@ -63,7 +63,7 @@ export const bodySystems: SystemInfo[] = [
         system: 'muscular',
         funFactVi: 'Cơ mạnh nhất theo tỷ lệ kích thước là cơ hàm!',
         funFactEn: 'The strongest muscle relative to size is the jaw muscle!',
-        position: [0.4, 1.1, 0],
+        position: [0.28, 0.38, 0.02],
       },
       {
         id: 'quadriceps',
@@ -74,7 +74,7 @@ export const bodySystems: SystemInfo[] = [
         system: 'muscular',
         funFactVi: 'Cơ đùi là cơ lớn nhất trong cơ thể!',
         funFactEn: 'The quadriceps are the biggest muscles in your body!',
-        position: [0.15, 0.2, 0],
+        position: [0.1, -0.3, 0.05],
       },
       {
         id: 'abs',
@@ -85,7 +85,7 @@ export const bodySystems: SystemInfo[] = [
         system: 'muscular',
         funFactVi: 'Cơ bụng hoạt động mỗi khi bạn cười!',
         funFactEn: 'Your abs work every time you laugh!',
-        position: [0, 0.7, 0.1],
+        position: [0, 0.2, 0.12],
       },
     ],
   },
@@ -95,7 +95,7 @@ export const bodySystems: SystemInfo[] = [
     nameEn: 'Circulatory System',
     descriptionVi: 'Hệ tim mạch gồm tim và mạch máu, đưa máu đi khắp cơ thể.',
     descriptionEn: 'The circulatory system includes the heart and blood vessels, carrying blood throughout the body.',
-    color: '#FF6B6B',
+    color: '#DC143C',
     icon: '❤️',
     organs: [
       {
@@ -107,7 +107,7 @@ export const bodySystems: SystemInfo[] = [
         system: 'circulatory',
         funFactVi: 'Tim bạn bơm đủ máu trong một ngày để đổ đầy 40 bồn tắm!',
         funFactEn: 'Your heart pumps enough blood in one day to fill 40 bathtubs!',
-        position: [0.05, 1.15, 0.05],
+        position: [0.05, 0.38, 0.1],
       },
       {
         id: 'arteries',
@@ -118,7 +118,7 @@ export const bodySystems: SystemInfo[] = [
         system: 'circulatory',
         funFactVi: 'Nếu nối tất cả mạch máu lại, chúng dài tới 100,000 km!',
         funFactEn: 'If you connected all blood vessels, they would stretch 100,000 km!',
-        position: [0, 0.9, 0],
+        position: [0.08, 0.15, 0.02],
       },
     ],
   },
@@ -128,7 +128,7 @@ export const bodySystems: SystemInfo[] = [
     nameEn: 'Digestive System',
     descriptionVi: 'Hệ tiêu hóa biến thức ăn thành năng lượng cho cơ thể hoạt động.',
     descriptionEn: 'The digestive system turns food into energy for the body to function.',
-    color: '#98D8AA',
+    color: '#FFA07A',
     icon: '🍎',
     organs: [
       {
@@ -140,7 +140,7 @@ export const bodySystems: SystemInfo[] = [
         system: 'digestive',
         funFactVi: 'Dạ dày tạo ra lớp chất nhầy mới mỗi 2 tuần để không tự tiêu hóa chính nó!',
         funFactEn: 'Your stomach makes a new layer of mucus every 2 weeks so it doesn\'t digest itself!',
-        position: [0.1, 0.85, 0.05],
+        position: [-0.06, 0.18, 0.08],
       },
       {
         id: 'intestines',
@@ -151,7 +151,7 @@ export const bodySystems: SystemInfo[] = [
         system: 'digestive',
         funFactVi: 'Ruột non dài khoảng 6 mét - bằng chiều cao của một con hươu cao cổ!',
         funFactEn: 'The small intestine is about 6 meters long - as tall as a giraffe!',
-        position: [0, 0.5, 0.05],
+        position: [0, 0, 0.08],
       },
       {
         id: 'liver',
@@ -162,7 +162,7 @@ export const bodySystems: SystemInfo[] = [
         system: 'digestive',
         funFactVi: 'Gan là cơ quan duy nhất có thể tự mọc lại!',
         funFactEn: 'The liver is the only organ that can regrow itself!',
-        position: [-0.15, 0.9, 0.05],
+        position: [0.1, 0.22, 0.06],
       },
     ],
   },
@@ -172,7 +172,7 @@ export const bodySystems: SystemInfo[] = [
     nameEn: 'Respiratory System',
     descriptionVi: 'Hệ hô hấp đưa oxy vào cơ thể và thải khí CO2 ra ngoài.',
     descriptionEn: 'The respiratory system brings oxygen into the body and expels CO2.',
-    color: '#87CEEB',
+    color: '#FFB6C1',
     icon: '🌬️',
     organs: [
       {
@@ -184,7 +184,7 @@ export const bodySystems: SystemInfo[] = [
         system: 'respiratory',
         funFactVi: 'Phổi trái nhỏ hơn phổi phải để nhường chỗ cho tim!',
         funFactEn: 'The left lung is smaller than the right to make room for the heart!',
-        position: [0, 1.1, 0],
+        position: [-0.1, 0.32, 0.06],
       },
       {
         id: 'trachea',
@@ -195,7 +195,7 @@ export const bodySystems: SystemInfo[] = [
         system: 'respiratory',
         funFactVi: 'Khí quản có những vòng sụn hình chữ C để giữ cho nó luôn mở!',
         funFactEn: 'The trachea has C-shaped cartilage rings to keep it always open!',
-        position: [0, 1.35, 0],
+        position: [0, 0.58, 0.05],
       },
     ],
   },
@@ -205,7 +205,7 @@ export const bodySystems: SystemInfo[] = [
     nameEn: 'Nervous System',
     descriptionVi: 'Hệ thần kinh điều khiển mọi hoạt động của cơ thể thông qua não và dây thần kinh.',
     descriptionEn: 'The nervous system controls all body activities through the brain and nerves.',
-    color: '#DDA0DD',
+    color: '#FFD700',
     icon: '🧠',
     organs: [
       {
@@ -217,7 +217,7 @@ export const bodySystems: SystemInfo[] = [
         system: 'nervous',
         funFactVi: 'Não của bạn tạo ra đủ điện để thắp sáng một bóng đèn nhỏ!',
         funFactEn: 'Your brain produces enough electricity to power a small light bulb!',
-        position: [0, 1.65, 0],
+        position: [0, 0.78, 0.02],
       },
       {
         id: 'spinalcord',
@@ -228,7 +228,7 @@ export const bodySystems: SystemInfo[] = [
         system: 'nervous',
         funFactVi: 'Tín hiệu thần kinh di chuyển với tốc độ 400 km/h!',
         funFactEn: 'Nerve signals travel at 400 km/h!',
-        position: [0, 0.8, -0.1],
+        position: [0, 0.3, -0.08],
       },
     ],
   },
