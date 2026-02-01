@@ -1,14 +1,15 @@
 'use client';
 
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Environment, PerspectiveCamera, ContactShadows, Float } from '@react-three/drei';
+import { OrbitControls, Environment, PerspectiveCamera, ContactShadows, Float, Grid } from '@react-three/drei';
 import { Suspense } from 'react';
 import BodyModel from './BodyModel';
-import { Organ } from '@/types';
+import { Organ, BodySystem } from '@/types';
 
 interface SceneProps {
   onOrganClick?: (organ: Organ) => void;
   highlightOrgan?: string;
+  visibleSystems?: Set<BodySystem>;
 }
 
 function LoadingFallback() {
@@ -16,75 +17,93 @@ function LoadingFallback() {
     <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
       <mesh>
         <icosahedronGeometry args={[0.3, 1]} />
-        <meshStandardMaterial color="#F687B3" wireframe />
+        <meshStandardMaterial color="#3B82F6" wireframe />
       </mesh>
     </Float>
   );
 }
 
-export default function Scene({ onOrganClick, highlightOrgan }: SceneProps) {
+export default function Scene({ onOrganClick, highlightOrgan, visibleSystems }: SceneProps) {
   return (
     <div className="w-full h-full canvas-container">
       <Canvas shadows dpr={[1, 2]} gl={{ antialias: true, alpha: true }}>
-        <color attach="background" args={['#F0F8FF']} />
+        {/* Dark background like InnerBody */}
+        <color attach="background" args={['#0F172A']} />
+        <fog attach="fog" args={['#0F172A', 3, 10]} />
 
-        <PerspectiveCamera makeDefault position={[0, 0.8, 2.5]} fov={45} />
+        <PerspectiveCamera makeDefault position={[0, 0.5, 2.2]} fov={50} />
 
-        {/* Ambient lighting - soft overall light */}
-        <ambientLight intensity={0.5} />
+        {/* Studio lighting setup */}
+        <ambientLight intensity={0.4} />
 
-        {/* Main key light - front */}
+        {/* Main key light */}
         <directionalLight
-          position={[2, 4, 3]}
-          intensity={1.2}
+          position={[3, 5, 4]}
+          intensity={1.5}
           castShadow
           shadow-mapSize-width={2048}
           shadow-mapSize-height={2048}
-          shadow-camera-far={50}
-          shadow-camera-left={-5}
-          shadow-camera-right={5}
-          shadow-camera-top={5}
-          shadow-camera-bottom={-5}
         />
 
-        {/* Fill light - left side */}
-        <directionalLight position={[-3, 2, 2]} intensity={0.6} color="#E3F2FD" />
+        {/* Fill light */}
+        <directionalLight position={[-4, 3, 2]} intensity={0.8} color="#60A5FA" />
 
-        {/* Rim light - back */}
-        <directionalLight position={[0, 2, -3]} intensity={0.4} color="#FFF3E0" />
+        {/* Rim light */}
+        <directionalLight position={[0, 3, -4]} intensity={0.6} color="#F472B6" />
 
-        {/* Subtle colored point lights for depth */}
-        <pointLight position={[1, 1.5, 1]} intensity={0.3} color="#FFCDD2" />
-        <pointLight position={[-1, 1, 1]} intensity={0.3} color="#BBDEFB" />
+        {/* Accent lights */}
+        <pointLight position={[2, 2, 2]} intensity={0.4} color="#34D399" />
+        <pointLight position={[-2, 1, 2]} intensity={0.4} color="#A78BFA" />
 
-        {/* Environment for realistic reflections */}
-        <Environment preset="studio" />
+        {/* Subtle ground grid */}
+        <Grid
+          position={[0, -0.5, 0]}
+          args={[10, 10]}
+          cellSize={0.5}
+          cellThickness={0.5}
+          cellColor="#334155"
+          sectionSize={2}
+          sectionThickness={1}
+          sectionColor="#475569"
+          fadeDistance={8}
+          fadeStrength={1}
+          infiniteGrid
+        />
+
+        {/* Environment */}
+        <Environment preset="night" />
 
         {/* Floor shadow */}
         <ContactShadows
-          position={[0, -0.3, 0]}
-          opacity={0.4}
-          scale={3}
-          blur={2}
-          far={2}
+          position={[0, -0.5, 0]}
+          opacity={0.6}
+          scale={4}
+          blur={2.5}
+          far={3}
+          color="#000000"
         />
 
         {/* Body Model */}
         <Suspense fallback={<LoadingFallback />}>
-          <BodyModel onOrganClick={onOrganClick} highlightOrgan={highlightOrgan} />
+          <BodyModel
+            onOrganClick={onOrganClick}
+            highlightOrgan={highlightOrgan}
+            visibleSystems={visibleSystems}
+          />
         </Suspense>
 
-        {/* Controls - touch friendly */}
+        {/* Controls */}
         <OrbitControls
-          enablePan={false}
+          enablePan={true}
           enableZoom={true}
-          minDistance={1.5}
-          maxDistance={5}
-          minPolarAngle={Math.PI / 6}
-          maxPolarAngle={Math.PI / 1.3}
-          target={[0, 0.5, 0]}
-          rotateSpeed={0.5}
-          zoomSpeed={0.8}
+          minDistance={1}
+          maxDistance={6}
+          minPolarAngle={Math.PI / 8}
+          maxPolarAngle={Math.PI / 1.2}
+          target={[0, 0.3, 0]}
+          rotateSpeed={0.6}
+          zoomSpeed={1}
+          panSpeed={0.5}
           enableDamping
           dampingFactor={0.05}
         />

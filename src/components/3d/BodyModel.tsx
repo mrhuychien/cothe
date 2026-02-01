@@ -434,9 +434,10 @@ function MuscularSystem({ visible, opacity }: { visible: boolean; opacity: numbe
 interface BodyModelProps {
   onOrganClick?: (organ: Organ) => void;
   highlightOrgan?: string;
+  visibleSystems?: Set<BodySystem>;
 }
 
-export default function BodyModel({ onOrganClick, highlightOrgan }: BodyModelProps) {
+export default function BodyModel({ onOrganClick, highlightOrgan, visibleSystems }: BodyModelProps) {
   const groupRef = useRef<THREE.Group>(null);
   const { activeSystem, xrayOpacity, setSelectedOrgan } = useExplorerStore();
 
@@ -445,8 +446,11 @@ export default function BodyModel({ onOrganClick, highlightOrgan }: BodyModelPro
     onOrganClick?.(organ);
   };
 
-  // Determine which systems to show
+  // Use visibleSystems prop if provided, otherwise fall back to activeSystem logic
   const showSystem = (system: BodySystem) => {
+    if (visibleSystems) {
+      return visibleSystems.has(system);
+    }
     return activeSystem === null || activeSystem === system;
   };
 
@@ -467,15 +471,15 @@ export default function BodyModel({ onOrganClick, highlightOrgan }: BodyModelPro
 
       {/* Interactive organ hotspots */}
       {bodySystems.map((system) => {
-        const isActiveSystem = activeSystem === null || activeSystem === system.id;
+        const isSystemVisible = showSystem(system.id);
         return (
           <group key={system.id}>
-            {system.organs.map((organ) => (
+            {isSystemVisible && system.organs.map((organ) => (
               <OrganHotspot
                 key={organ.id}
                 organ={organ}
                 systemColor={system.color}
-                isActive={isActiveSystem}
+                isActive={true}
                 isHighlighted={highlightOrgan === organ.id}
                 onClick={() => handleOrganClick(organ)}
               />
