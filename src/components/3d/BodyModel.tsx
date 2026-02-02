@@ -1,8 +1,8 @@
 'use client';
 
-import { useRef, useState, useMemo, Suspense } from 'react';
+import { useRef, useState, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Html, useGLTF } from '@react-three/drei';
+import { Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { useExplorerStore } from '@/stores/useExplorerStore';
 import { useLanguageStore } from '@/stores/useLanguageStore';
@@ -91,45 +91,8 @@ function OrganHotspot({ organ, systemColor, isActive, isHighlighted, onClick }: 
   );
 }
 
-// GLB Human Body Model
-function GLBHumanBody({ opacity }: { opacity: number }) {
-  const { scene } = useGLTF('/models/human-body.glb');
-  const modelRef = useRef<THREE.Group>(null);
-
-  // Clone and setup the scene
-  const clonedScene = useMemo(() => {
-    const clone = scene.clone();
-    clone.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
-        // Make materials transparent and adjust for X-ray effect
-        if (child.material) {
-          const materials = Array.isArray(child.material) ? child.material : [child.material];
-          materials.forEach((mat) => {
-            if (mat instanceof THREE.MeshStandardMaterial || mat instanceof THREE.MeshPhysicalMaterial) {
-              mat.transparent = true;
-              mat.opacity = opacity;
-              mat.side = THREE.DoubleSide;
-            }
-          });
-        }
-      }
-    });
-    return clone;
-  }, [scene, opacity]);
-
-  return (
-    <primitive
-      ref={modelRef}
-      object={clonedScene}
-      scale={[0.01, 0.01, 0.01]}
-      position={[0, 0, 0]}
-      rotation={[0, 0, 0]}
-    />
-  );
-}
-
-// Fallback body using basic shapes
-function FallbackHumanBody({ opacity }: { opacity: number }) {
+// Human body silhouette using basic shapes - X-ray style
+function HumanBodySilhouette({ opacity }: { opacity: number }) {
   const skinMaterial = useMemo(() => {
     return new THREE.MeshPhysicalMaterial({
       color: '#E8BEAC',
@@ -574,10 +537,8 @@ export default function BodyModel({ onOrganClick, highlightOrgan, visibleSystems
 
   return (
     <group ref={groupRef} position={[0, -0.8, 0]}>
-      {/* Human body - try GLB first, fallback to basic shapes */}
-      <Suspense fallback={<FallbackHumanBody opacity={xrayOpacity} />}>
-        <GLBHumanBody opacity={xrayOpacity} />
-      </Suspense>
+      {/* Human body silhouette - transparent X-ray style */}
+      <HumanBodySilhouette opacity={xrayOpacity} />
 
       {/* Anatomical systems - layered from inside to outside */}
       <SkeletalSystem visible={showSystem('skeletal')} opacity={systemOpacity} />
@@ -608,6 +569,3 @@ export default function BodyModel({ onOrganClick, highlightOrgan, visibleSystems
     </group>
   );
 }
-
-// Preload the GLB model
-useGLTF.preload('/models/human-body.glb');
