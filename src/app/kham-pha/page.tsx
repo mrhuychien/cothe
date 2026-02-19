@@ -1,9 +1,8 @@
 'use client';
 
-import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
-import { ChevronDown, ChevronRight, Eye, EyeOff, RotateCcw, ZoomIn, ZoomOut, Move3D } from 'lucide-react';
+import { useState, useCallback } from 'react';
+import { ChevronDown, ChevronRight, Eye, Bone, Heart, Wind, Apple, Brain, Dumbbell } from 'lucide-react';
 import { Header } from '@/components/shared';
 import { InfoCard } from '@/components/explorer';
 import { useLanguageStore } from '@/stores/useLanguageStore';
@@ -11,71 +10,118 @@ import { useExplorerStore } from '@/stores/useExplorerStore';
 import { bodySystems } from '@/data/systems';
 import { BodySystem } from '@/types';
 
-// Dynamic import for 3D Scene (SSR disabled)
-const Scene = dynamic(() => import('@/components/3d/Scene'), {
-  ssr: false,
-  loading: () => (
-    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800">
-      <div className="text-center">
-        <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-white/80">Đang tải mô hình 3D...</p>
-      </div>
-    </div>
-  ),
-});
+// Sketchfab model UIDs for each body system
+const SKETCHFAB_MODELS: Record<string, { uid: string; title: string }> = {
+  full: {
+    uid: 'faf0f3eaec554bcf854be2038993024f',
+    title: 'Human Anatomy',
+  },
+  skeletal: {
+    uid: '911b9df7e7834175b69b4840ea15e054',
+    title: 'Human Skeleton',
+  },
+  muscular: {
+    uid: 'faf0f3eaec554bcf854be2038993024f',
+    title: 'Human Anatomy - Muscular',
+  },
+  circulatory: {
+    uid: '6a7a537a71444f6e8201e18a685a013d',
+    title: 'Circulatory System',
+  },
+  respiratory: {
+    uid: '5ca9b0b5d95942aeb5a746a9f56d5d82',
+    title: 'Cardiovascular and Respiratory Organs',
+  },
+  digestive: {
+    uid: 'bced6b6ebded4845bcfb2496a6e6d35c',
+    title: 'Human Organs - Digestive',
+  },
+  nervous: {
+    uid: '2e6be1399756494b9f185ce8c5900911',
+    title: 'The Nervous System',
+  },
+};
+
+// Build Sketchfab embed URL with options
+function getSketchfabEmbedUrl(uid: string): string {
+  const params = new URLSearchParams({
+    autostart: '1',
+    ui_theme: 'dark',
+    ui_infos: '0',
+    ui_stop: '0',
+    ui_inspector: '0',
+    ui_watermark_link: '0',
+    ui_help: '0',
+    ui_settings: '0',
+    ui_vr: '0',
+    ui_fullscreen: '1',
+    ui_annotations: '1',
+    transparent: '1',
+    camera: '0',
+  });
+  return `https://sketchfab.com/models/${uid}/embed?${params.toString()}`;
+}
+
+// System icon mapping
+const SYSTEM_ICONS: Record<string, React.ReactNode> = {
+  skeletal: <Bone className="w-4 h-4" />,
+  muscular: <Dumbbell className="w-4 h-4" />,
+  circulatory: <Heart className="w-4 h-4" />,
+  respiratory: <Wind className="w-4 h-4" />,
+  digestive: <Apple className="w-4 h-4" />,
+  nervous: <Brain className="w-4 h-4" />,
+};
 
 // System item in sidebar
 function SystemItem({
   system,
   isExpanded,
   onToggle,
-  isVisible,
-  onVisibilityToggle
+  isSelected,
+  onSelect,
 }: {
   system: typeof bodySystems[0];
   isExpanded: boolean;
   onToggle: () => void;
-  isVisible: boolean;
-  onVisibilityToggle: () => void;
+  isSelected: boolean;
+  onSelect: () => void;
 }) {
   const { language } = useLanguageStore();
   const { setSelectedOrgan, setActiveSystem } = useExplorerStore();
 
   return (
-    <div className="border-b border-slate-700">
+    <div className={`border-b border-slate-700 ${isSelected ? 'bg-slate-700/60' : ''}`}>
       <div
         className="flex items-center gap-2 p-3 hover:bg-slate-700/50 cursor-pointer transition-colors"
-        onClick={onToggle}
+        onClick={() => {
+          onSelect();
+          onToggle();
+        }}
       >
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onVisibilityToggle();
-          }}
-          className="p-1 hover:bg-slate-600 rounded transition-colors"
-        >
-          {isVisible ? (
-            <Eye className="w-4 h-4 text-green-400" />
-          ) : (
-            <EyeOff className="w-4 h-4 text-slate-500" />
-          )}
-        </button>
-
         <div
-          className="w-3 h-3 rounded-full flex-shrink-0"
-          style={{ backgroundColor: system.color }}
-        />
+          className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+          style={{ backgroundColor: system.color + '30', color: system.color }}
+        >
+          {SYSTEM_ICONS[system.id] || <span className="text-sm">{system.icon}</span>}
+        </div>
 
-        <span className="flex-1 text-sm font-medium text-white">
-          {language === 'vi' ? system.nameVi : system.nameEn}
-        </span>
+        <div className="flex-1">
+          <span className="text-sm font-medium text-white block leading-tight">
+            {language === 'vi' ? system.nameVi : system.nameEn}
+          </span>
+          <span className="text-xs text-slate-400">
+            {system.organs.length} {language === 'vi' ? 'bộ phận' : 'parts'}
+          </span>
+        </div>
 
-        <span className="text-lg">{system.icon}</span>
+        {isSelected && (
+          <Eye className="w-4 h-4 text-green-400 flex-shrink-0" />
+        )}
 
         {isExpanded ? (
-          <ChevronDown className="w-4 h-4 text-slate-400" />
+          <ChevronDown className="w-4 h-4 text-slate-400 flex-shrink-0" />
         ) : (
-          <ChevronRight className="w-4 h-4 text-slate-400" />
+          <ChevronRight className="w-4 h-4 text-slate-400 flex-shrink-0" />
         )}
       </div>
 
@@ -90,14 +136,14 @@ function SystemItem({
             {system.organs.map((organ) => (
               <div
                 key={organ.id}
-                className="flex items-center gap-2 px-4 py-2 pl-10 hover:bg-slate-600/50 cursor-pointer transition-colors text-sm text-slate-300 hover:text-white"
+                className="flex items-center gap-2 px-4 py-2 pl-12 hover:bg-slate-600/50 cursor-pointer transition-colors text-sm text-slate-300 hover:text-white"
                 onClick={() => {
                   setSelectedOrgan(organ);
                   setActiveSystem(system.id);
                 }}
               >
                 <div
-                  className="w-2 h-2 rounded-full"
+                  className="w-2 h-2 rounded-full flex-shrink-0"
                   style={{ backgroundColor: system.color }}
                 />
                 {language === 'vi' ? organ.nameVi : organ.nameEn}
@@ -110,43 +156,48 @@ function SystemItem({
   );
 }
 
+// Sketchfab 3D Viewer component
+function SketchfabViewer({ modelKey }: { modelKey: string }) {
+  const model = SKETCHFAB_MODELS[modelKey] || SKETCHFAB_MODELS.full;
+
+  return (
+    <iframe
+      title={model.title}
+      className="w-full h-full border-0"
+      src={getSketchfabEmbedUrl(model.uid)}
+      allow="autoplay; fullscreen; xr-spatial-tracking"
+      allowFullScreen
+    />
+  );
+}
+
 export default function ExplorerPage() {
   const { language } = useLanguageStore();
-  const { setActiveSystem, xrayOpacity, setXrayOpacity } = useExplorerStore();
-
+  const { setActiveSystem } = useExplorerStore();
   const [expandedSystems, setExpandedSystems] = useState<Set<string>>(new Set());
-  const [visibleSystems, setVisibleSystems] = useState<Set<BodySystem>>(
-    new Set<BodySystem>(['skeletal', 'muscular', 'circulatory', 'digestive', 'respiratory', 'nervous'])
-  );
+  const [activeModelKey, setActiveModelKey] = useState<string>('full');
 
-  const toggleExpand = (systemId: string) => {
-    const newExpanded = new Set(expandedSystems);
-    if (newExpanded.has(systemId)) {
-      newExpanded.delete(systemId);
-    } else {
-      newExpanded.add(systemId);
-    }
-    setExpandedSystems(newExpanded);
-  };
+  const toggleExpand = useCallback((systemId: string) => {
+    setExpandedSystems(prev => {
+      const next = new Set(prev);
+      if (next.has(systemId)) {
+        next.delete(systemId);
+      } else {
+        next.add(systemId);
+      }
+      return next;
+    });
+  }, []);
 
-  const toggleVisibility = (systemId: BodySystem) => {
-    const newVisible = new Set(visibleSystems);
-    if (newVisible.has(systemId)) {
-      newVisible.delete(systemId);
-    } else {
-      newVisible.add(systemId);
-    }
-    setVisibleSystems(newVisible);
-  };
+  const selectSystem = useCallback((systemId: BodySystem) => {
+    setActiveModelKey(systemId);
+    setActiveSystem(systemId);
+  }, [setActiveSystem]);
 
-  const showAllSystems = () => {
-    setVisibleSystems(new Set<BodySystem>(['skeletal', 'muscular', 'circulatory', 'digestive', 'respiratory', 'nervous']));
+  const showFullBody = useCallback(() => {
+    setActiveModelKey('full');
     setActiveSystem(null);
-  };
-
-  const hideAllSystems = () => {
-    setVisibleSystems(new Set());
-  };
+  }, [setActiveSystem]);
 
   return (
     <>
@@ -161,23 +212,20 @@ export default function ExplorerPage() {
           >
             {/* Sidebar Header */}
             <div className="p-4 border-b border-slate-700">
-              <h2 className="text-lg font-bold text-white mb-2">
+              <h2 className="text-lg font-bold text-white mb-3">
                 {language === 'vi' ? 'Hệ Cơ Quan' : 'Body Systems'}
               </h2>
-              <div className="flex gap-2">
-                <button
-                  onClick={showAllSystems}
-                  className="flex-1 text-xs bg-blue-600 hover:bg-blue-500 text-white py-1.5 px-3 rounded transition-colors"
-                >
-                  {language === 'vi' ? 'Hiện tất cả' : 'Show All'}
-                </button>
-                <button
-                  onClick={hideAllSystems}
-                  className="flex-1 text-xs bg-slate-600 hover:bg-slate-500 text-white py-1.5 px-3 rounded transition-colors"
-                >
-                  {language === 'vi' ? 'Ẩn tất cả' : 'Hide All'}
-                </button>
-              </div>
+              <button
+                onClick={showFullBody}
+                className={`w-full text-sm py-2.5 px-4 rounded-lg transition-all flex items-center justify-center gap-2 font-medium ${
+                  activeModelKey === 'full'
+                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
+                    : 'bg-slate-700 hover:bg-slate-600 text-slate-300'
+                }`}
+              >
+                <Eye className="w-4 h-4" />
+                {language === 'vi' ? 'Toàn bộ cơ thể' : 'Full Body'}
+              </button>
             </div>
 
             {/* System List */}
@@ -188,67 +236,51 @@ export default function ExplorerPage() {
                   system={system}
                   isExpanded={expandedSystems.has(system.id)}
                   onToggle={() => toggleExpand(system.id)}
-                  isVisible={visibleSystems.has(system.id)}
-                  onVisibilityToggle={() => toggleVisibility(system.id)}
+                  isSelected={activeModelKey === system.id}
+                  onSelect={() => selectSystem(system.id)}
                 />
               ))}
             </div>
 
-            {/* X-Ray Slider */}
-            <div className="p-4 border-t border-slate-700">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-slate-300">
-                  {language === 'vi' ? 'Độ trong suốt' : 'Transparency'}
-                </span>
-                <span className="text-sm text-slate-400">{Math.round(xrayOpacity * 100)}%</span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.01"
-                value={xrayOpacity}
-                onChange={(e) => setXrayOpacity(parseFloat(e.target.value))}
-                className="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-blue-500"
-              />
+            {/* Credits */}
+            <div className="p-3 border-t border-slate-700">
+              <p className="text-[10px] text-slate-500 text-center">
+                {language === 'vi' ? 'Mô hình 3D được cung cấp bởi' : '3D models provided by'}{' '}
+                <a
+                  href="https://sketchfab.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-400 hover:text-blue-300"
+                >
+                  Sketchfab
+                </a>
+              </p>
             </div>
           </motion.div>
 
-          {/* Main 3D Canvas */}
-          <div className="flex-1 relative">
-            <Scene visibleSystems={visibleSystems} />
+          {/* Main 3D Viewer */}
+          <div className="flex-1 relative bg-slate-900">
+            {/* Sketchfab Embed */}
+            <SketchfabViewer modelKey={activeModelKey} />
 
-            {/* Top Controls */}
+            {/* Top Title */}
             <motion.div
               initial={{ y: -20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              className="absolute top-4 left-1/2 -translate-x-1/2"
+              className="absolute top-4 left-1/2 -translate-x-1/2 pointer-events-none"
             >
-              <div className="bg-slate-800/90 backdrop-blur-sm rounded-lg px-4 py-2 border border-slate-700">
-                <h1 className="text-white font-bold text-center">
-                  {language === 'vi' ? '🔬 Khám Phá Cơ Thể Người' : '🔬 Human Body Explorer'}
+              <div className="bg-slate-900/80 backdrop-blur-sm rounded-lg px-5 py-2 border border-slate-700">
+                <h1 className="text-white font-bold text-center text-sm">
+                  {language === 'vi' ? 'Khám Phá Cơ Thể Người' : 'Human Body Explorer'}
+                  {activeModelKey !== 'full' && (
+                    <span className="text-blue-400 ml-2">
+                      — {language === 'vi'
+                        ? bodySystems.find(s => s.id === activeModelKey)?.nameVi
+                        : bodySystems.find(s => s.id === activeModelKey)?.nameEn}
+                    </span>
+                  )}
                 </h1>
               </div>
-            </motion.div>
-
-            {/* Control Buttons */}
-            <motion.div
-              initial={{ x: 20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-2"
-            >
-              <button className="p-3 bg-slate-800/90 hover:bg-slate-700 rounded-lg border border-slate-700 text-white transition-colors group">
-                <ZoomIn className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              </button>
-              <button className="p-3 bg-slate-800/90 hover:bg-slate-700 rounded-lg border border-slate-700 text-white transition-colors group">
-                <ZoomOut className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              </button>
-              <button className="p-3 bg-slate-800/90 hover:bg-slate-700 rounded-lg border border-slate-700 text-white transition-colors group">
-                <RotateCcw className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              </button>
-              <button className="p-3 bg-slate-800/90 hover:bg-slate-700 rounded-lg border border-slate-700 text-white transition-colors group">
-                <Move3D className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              </button>
             </motion.div>
 
             {/* Bottom Instructions */}
@@ -256,12 +288,12 @@ export default function ExplorerPage() {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="absolute bottom-4 left-1/2 -translate-x-1/2"
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-none"
             >
-              <div className="bg-slate-800/90 backdrop-blur-sm rounded-lg px-4 py-2 border border-slate-700 flex items-center gap-4 text-sm text-slate-300">
-                <span>🖱️ {language === 'vi' ? 'Kéo để xoay' : 'Drag to rotate'}</span>
-                <span>🔍 {language === 'vi' ? 'Cuộn để zoom' : 'Scroll to zoom'}</span>
-                <span>👆 {language === 'vi' ? 'Nhấn vào bộ phận để xem chi tiết' : 'Click organ for details'}</span>
+              <div className="bg-slate-900/80 backdrop-blur-sm rounded-lg px-4 py-2 border border-slate-700 flex items-center gap-4 text-xs text-slate-400">
+                <span>{language === 'vi' ? 'Kéo để xoay' : 'Drag to rotate'}</span>
+                <span>{language === 'vi' ? 'Cuộn để zoom' : 'Scroll to zoom'}</span>
+                <span>{language === 'vi' ? 'Chọn hệ cơ quan ở bên trái' : 'Select system on left'}</span>
               </div>
             </motion.div>
           </div>
