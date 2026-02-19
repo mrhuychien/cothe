@@ -9,42 +9,76 @@ import { useExplorerStore } from '@/stores/useExplorerStore';
 import { bodySystems } from '@/data/systems';
 import { BodySystem } from '@/types';
 
-// Sketchfab model UIDs - using models with annotations from University of Dundee and other educational sources
-const SKETCHFAB_MODELS: Record<string, { uid: string; title: string; hasAnnotations: boolean }> = {
+// Sketchfab model UIDs - prioritizing models from University of Dundee, CAHID
+// Source: https://sketchfab.com/anatomy_dundee
+const SKETCHFAB_MODELS: Record<string, { uid: string; title: string; hasAnnotations: boolean; source: string }> = {
+  // === UNIVERSITY OF DUNDEE MODELS ===
+  nervous: {
+    uid: '2e6be1399756494b9f185ce8c5900911',
+    title: 'The Nervous System',
+    hasAnnotations: true,
+    source: 'University of Dundee, CAHID',
+  },
+  'nervous-cranial': {
+    uid: '82d87cb89d6c48f0984a59c4f2a4cf9a',
+    title: 'Cranial Nerves',
+    hasAnnotations: true,
+    source: 'University of Dundee, CAHID',
+  },
+  'nervous-spinal': {
+    uid: 'd4af33ccf03b4fec8754180bcb480516',
+    title: 'Spinal Cord Anatomy',
+    hasAnnotations: true,
+    source: 'University of Dundee, CAHID',
+  },
+  circulatory: {
+    uid: '9f48eaa481cc4a43baeb9e1f03882cff',
+    title: 'Internal Human Heart Anatomy',
+    hasAnnotations: true,
+    source: 'University of Dundee, CAHID',
+  },
+  'circulatory-external': {
+    uid: '10472481071e4375b8233289c277d411',
+    title: 'External Human Heart Anatomy',
+    hasAnnotations: true,
+    source: 'University of Dundee, CAHID',
+  },
+  digestive: {
+    uid: '3a920101c4304eacaa3a422faacfc660',
+    title: 'Bowel Anatomy',
+    hasAnnotations: true,
+    source: 'University of Dundee, CAHID',
+  },
+  'muscular-knee': {
+    uid: '765feaaebb4743dab7eeabb35c89cf10',
+    title: 'Knee Anatomy: Muscles',
+    hasAnnotations: true,
+    source: 'University of Dundee, CAHID',
+  },
+  // === OTHER EDUCATIONAL MODELS ===
   full: {
     uid: 'faf0f3eaec554bcf854be2038993024f',
     title: 'Human Anatomy',
     hasAnnotations: false,
+    source: 'Sketchfab Community',
   },
   skeletal: {
     uid: '911b9df7e7834175b69b4840ea15e054',
     title: 'Human Skeleton',
     hasAnnotations: true,
+    source: 'Terrie Simmons-Ehrhardt',
   },
   muscular: {
     uid: '4f258907dfb6477aa9bf4dfb5833a797',
     title: 'Simplified Male Muscular System',
     hasAnnotations: true,
-  },
-  circulatory: {
-    uid: '9f48eaa481cc4a43baeb9e1f03882cff',
-    title: 'Internal Human Heart Anatomy - University of Dundee',
-    hasAnnotations: true,
+    source: 'Alexander',
   },
   respiratory: {
     uid: '1cd55d26c1254ab7a5d0845fb9a207fe',
-    title: 'Anatomy of the Airways - UMCG',
+    title: 'Anatomy of the Airways',
     hasAnnotations: true,
-  },
-  digestive: {
-    uid: 'f078cef244ec481e93013982a5393ffe',
-    title: 'Digestive System | Human Anatomy',
-    hasAnnotations: true,
-  },
-  nervous: {
-    uid: '2e6be1399756494b9f185ce8c5900911',
-    title: 'The Nervous System - University of Dundee',
-    hasAnnotations: true,
+    source: 'E-learning UMCG',
   },
 };
 
@@ -275,21 +309,22 @@ const SYSTEM_ANNOTATIONS: Record<string, {
     ],
   },
   digestive: {
-    title: 'Hệ Tiêu Hóa',
-    description: 'Hệ tiêu hóa phân giải thức ăn thành chất dinh dưỡng để cơ thể hấp thu. Quá trình này mất khoảng 24-72 giờ.',
-    funFact: 'Ruột non dài khoảng 6-7 mét, nhưng nếu trải phẳng bề mặt bên trong, nó có diện tích bằng một sân tennis!',
-    source: 'adimed - Digestive System',
+    title: 'Giải Phẫu Ruột',
+    description: 'Mô hình chi tiết ống tiêu hóa từ dạ dày đến trực tràng. Giúp hiểu quá trình tiêu hóa và các giai đoạn của ung thư ruột.',
+    funFact: 'Ruột non có lông nhung (villi) - hàng triệu cấu trúc nhỏ xíu giúp tăng diện tích hấp thu lên gấp 600 lần!',
+    source: 'University of Dundee, CAHID - Imi Ridley',
     parts: [
-      { nameEn: 'Oral Cavity / Mouth', nameVi: 'Khoang Miệng', description: 'Nơi bắt đầu tiêu hóa', detail: 'Răng nghiền thức ăn, nước bọt phân giải tinh bột' },
-      { nameEn: 'Esophagus', nameVi: 'Thực Quản', description: 'Ống nối miệng với dạ dày', detail: 'Dài khoảng 25 cm' },
-      { nameEn: 'Stomach', nameVi: 'Dạ Dày', description: 'Túi chứa và nghiền thức ăn', detail: 'Acid trong dạ dày mạnh đến mức có thể hòa tan kim loại' },
-      { nameEn: 'Liver', nameVi: 'Gan', description: 'Cơ quan lớn nhất bên trong', detail: 'Thực hiện hơn 500 chức năng khác nhau' },
-      { nameEn: 'Gallbladder', nameVi: 'Túi Mật', description: 'Chứa mật do gan tạo ra', detail: 'Mật giúp tiêu hóa chất béo' },
-      { nameEn: 'Pancreas', nameVi: 'Tuyến Tụy', description: 'Tiết enzyme tiêu hóa', detail: 'Cũng sản xuất insulin điều hòa đường huyết' },
-      { nameEn: 'Small Intestine', nameVi: 'Ruột Non', description: 'Nơi hấp thu dinh dưỡng', detail: 'Dài 6-7 mét, hấp thu 90% chất dinh dưỡng' },
-      { nameEn: 'Large Intestine / Colon', nameVi: 'Ruột Già', description: 'Hấp thu nước và tạo phân', detail: 'Dài khoảng 1.5 mét' },
-      { nameEn: 'Appendix', nameVi: 'Ruột Thừa', description: 'Phần nhỏ ở đầu ruột già', detail: 'Có thể chứa vi khuẩn có lợi' },
-      { nameEn: 'Spleen', nameVi: 'Lá Lách', description: 'Lọc máu và miễn dịch', detail: 'Phá hủy tế bào máu cũ' },
+      { nameEn: 'Stomach', nameVi: 'Dạ Dày', description: 'Túi chứa và nghiền thức ăn', detail: 'Dung tích khoảng 1 lít khi trống' },
+      { nameEn: 'Pylorus', nameVi: 'Môn Vị', description: 'Cửa ra của dạ dày', detail: 'Cơ vòng kiểm soát thức ăn vào ruột non' },
+      { nameEn: 'Duodenum', nameVi: 'Tá Tràng', description: 'Phần đầu ruột non', detail: 'Dài khoảng 25cm, nhận mật và dịch tụy' },
+      { nameEn: 'Pancreas', nameVi: 'Tuyến Tụy', description: 'Tiết enzyme tiêu hóa', detail: 'Nằm sau dạ dày' },
+      { nameEn: 'Small Intestine', nameVi: 'Ruột Non', description: 'Nơi hấp thu chính', detail: 'Hấp thu 90% chất dinh dưỡng' },
+      { nameEn: 'Cecum', nameVi: 'Manh Tràng', description: 'Phần đầu ruột già', detail: 'Nơi ruột thừa gắn vào' },
+      { nameEn: 'Ascending Colon', nameVi: 'Đại Tràng Lên', description: 'Phần bên phải', detail: 'Đi từ dưới lên' },
+      { nameEn: 'Transverse Colon', nameVi: 'Đại Tràng Ngang', description: 'Phần ngang bụng', detail: 'Nối đại tràng lên và xuống' },
+      { nameEn: 'Descending Colon', nameVi: 'Đại Tràng Xuống', description: 'Phần bên trái', detail: 'Đi từ trên xuống' },
+      { nameEn: 'Sigmoid Colon', nameVi: 'Đại Tràng Sigma', description: 'Phần hình chữ S', detail: 'Nối đại tràng xuống với trực tràng' },
+      { nameEn: 'Rectum', nameVi: 'Trực Tràng', description: 'Phần cuối ruột già', detail: 'Chứa phân trước khi thải' },
     ],
   },
   nervous: {
@@ -310,16 +345,109 @@ const SYSTEM_ANNOTATIONS: Record<string, {
       { nameEn: 'Vertebral Column', nameVi: 'Cột Sống', description: 'Bảo vệ tủy sống', detail: '33 đốt sống tạo thành ống bảo vệ' },
     ],
   },
+  // === UNIVERSITY OF DUNDEE SUB-MODELS ===
+  'nervous-cranial': {
+    title: 'Dây Thần Kinh Sọ',
+    description: '12 cặp dây thần kinh sọ xuất phát trực tiếp từ não, điều khiển các chức năng quan trọng của đầu và mặt.',
+    funFact: 'Dây thần kinh khứu giác (I) là dây duy nhất kết nối trực tiếp với vỏ não mà không qua đồi thị!',
+    source: 'University of Dundee, CAHID',
+    parts: [
+      { nameEn: 'Olfactory Nerve (I)', nameVi: 'Thần Kinh Khứu Giác', description: 'Dây thần kinh số 1', detail: 'Giúp ngửi mùi' },
+      { nameEn: 'Optic Nerve (II)', nameVi: 'Thần Kinh Thị Giác', description: 'Dây thần kinh số 2', detail: 'Truyền tín hiệu hình ảnh từ mắt đến não' },
+      { nameEn: 'Oculomotor Nerve (III)', nameVi: 'Thần Kinh Vận Nhãn', description: 'Dây thần kinh số 3', detail: 'Điều khiển cử động mắt và mở mí' },
+      { nameEn: 'Trochlear Nerve (IV)', nameVi: 'Thần Kinh Ròng Rọc', description: 'Dây thần kinh số 4', detail: 'Điều khiển cơ chéo trên của mắt' },
+      { nameEn: 'Trigeminal Nerve (V)', nameVi: 'Thần Kinh Tam Thoa', description: 'Dây thần kinh số 5', detail: 'Cảm giác mặt và điều khiển nhai' },
+      { nameEn: 'Abducens Nerve (VI)', nameVi: 'Thần Kinh Giạng', description: 'Dây thần kinh số 6', detail: 'Điều khiển cử động mắt sang bên' },
+      { nameEn: 'Facial Nerve (VII)', nameVi: 'Thần Kinh Mặt', description: 'Dây thần kinh số 7', detail: 'Biểu cảm mặt và vị giác' },
+      { nameEn: 'Vestibulocochlear Nerve (VIII)', nameVi: 'Thần Kinh Tiền Đình Ốc Tai', description: 'Dây thần kinh số 8', detail: 'Nghe và thăng bằng' },
+      { nameEn: 'Glossopharyngeal Nerve (IX)', nameVi: 'Thần Kinh Thiệt Hầu', description: 'Dây thần kinh số 9', detail: 'Nuốt và vị giác' },
+      { nameEn: 'Vagus Nerve (X)', nameVi: 'Thần Kinh Phế Vị', description: 'Dây thần kinh số 10', detail: 'Dây dài nhất, điều khiển tim, phổi, tiêu hóa' },
+      { nameEn: 'Accessory Nerve (XI)', nameVi: 'Thần Kinh Phụ', description: 'Dây thần kinh số 11', detail: 'Điều khiển cơ ức đòn chũm và cơ thang' },
+      { nameEn: 'Hypoglossal Nerve (XII)', nameVi: 'Thần Kinh Hạ Thiệt', description: 'Dây thần kinh số 12', detail: 'Điều khiển cử động lưỡi' },
+    ],
+  },
+  'nervous-spinal': {
+    title: 'Giải Phẫu Tủy Sống',
+    description: 'Tủy sống là cầu nối giữa não và cơ thể, truyền tín hiệu vận động và cảm giác. Mô hình này cho thấy cấu trúc chi tiết của tủy sống.',
+    funFact: 'Tủy sống dài khoảng 45cm và nặng chỉ 35 gram, nhưng chứa hàng triệu tế bào thần kinh!',
+    source: 'University of Dundee, CAHID - Abigail de Rancourt',
+    parts: [
+      { nameEn: 'Spinal Cord', nameVi: 'Tủy Sống', description: 'Dây thần kinh trung ương', detail: 'Nằm trong ống sống, bảo vệ bởi đốt sống' },
+      { nameEn: 'Ventral Root', nameVi: 'Rễ Bụng', description: 'Rễ phía trước', detail: 'Mang tín hiệu vận động từ não đến cơ' },
+      { nameEn: 'Dorsal Root', nameVi: 'Rễ Lưng', description: 'Rễ phía sau', detail: 'Mang tín hiệu cảm giác từ cơ thể đến não' },
+      { nameEn: 'Dorsal Root Ganglion', nameVi: 'Hạch Rễ Lưng', description: 'Cụm tế bào thần kinh', detail: 'Chứa thân tế bào thần kinh cảm giác' },
+      { nameEn: 'Spinal Nerve', nameVi: 'Dây Thần Kinh Tủy', description: 'Dây thần kinh hỗn hợp', detail: 'Gồm cả sợi vận động và cảm giác' },
+      { nameEn: 'Gray Matter', nameVi: 'Chất Xám', description: 'Phần giữa tủy sống', detail: 'Chứa thân tế bào thần kinh' },
+      { nameEn: 'White Matter', nameVi: 'Chất Trắng', description: 'Phần ngoài tủy sống', detail: 'Chứa các bó sợi thần kinh có myelin' },
+    ],
+  },
+  'circulatory-external': {
+    title: 'Giải Phẫu Tim Ngoài',
+    description: 'Mô hình chi tiết bề ngoài của tim, cho thấy các tâm thất, tâm nhĩ, mạch máu lớn và động mạch vành nuôi tim.',
+    funFact: 'Động mạch vành được đặt tên vì chúng bao quanh tim như một vương miện (corona)!',
+    source: 'University of Dundee, CAHID - Alexandra Wilkins',
+    parts: [
+      { nameEn: 'Left Ventricle', nameVi: 'Tâm Thất Trái', description: 'Buồng tim dưới trái', detail: 'Thành dày nhất vì bơm máu đi xa nhất' },
+      { nameEn: 'Right Ventricle', nameVi: 'Tâm Thất Phải', description: 'Buồng tim dưới phải', detail: 'Bơm máu đến phổi gần đó' },
+      { nameEn: 'Left Atrium', nameVi: 'Tâm Nhĩ Trái', description: 'Buồng tim trên trái', detail: 'Nhận máu giàu oxy từ 4 tĩnh mạch phổi' },
+      { nameEn: 'Right Atrium', nameVi: 'Tâm Nhĩ Phải', description: 'Buồng tim trên phải', detail: 'Nhận máu từ tĩnh mạch chủ trên và dưới' },
+      { nameEn: 'Aorta', nameVi: 'Động Mạch Chủ', description: 'Động mạch lớn nhất cơ thể', detail: 'Đường kính khoảng 2.5cm' },
+      { nameEn: 'Pulmonary Trunk', nameVi: 'Thân Động Mạch Phổi', description: 'Mạch đến phổi', detail: 'Chia thành động mạch phổi trái và phải' },
+      { nameEn: 'Superior Vena Cava', nameVi: 'Tĩnh Mạch Chủ Trên', description: 'Tĩnh mạch từ nửa trên', detail: 'Đưa máu từ đầu, tay về tim' },
+      { nameEn: 'Inferior Vena Cava', nameVi: 'Tĩnh Mạch Chủ Dưới', description: 'Tĩnh mạch từ nửa dưới', detail: 'Tĩnh mạch lớn nhất cơ thể' },
+      { nameEn: 'Coronary Arteries', nameVi: 'Động Mạch Vành', description: 'Nuôi cơ tim', detail: 'Tim cần oxy liên tục để bơm máu' },
+      { nameEn: 'Cardiac Veins', nameVi: 'Tĩnh Mạch Tim', description: 'Dẫn máu từ cơ tim', detail: 'Đổ vào xoang vành rồi về tâm nhĩ phải' },
+    ],
+  },
+  'muscular-knee': {
+    title: 'Cơ Vùng Gối',
+    description: 'Giải phẫu chi tiết các cơ quanh khớp gối, giúp hiểu cách đầu gối vận động và các chấn thương thường gặp.',
+    funFact: 'Khớp gối là khớp lớn nhất và phức tạp nhất trong cơ thể, chịu lực gấp 6 lần trọng lượng khi chạy!',
+    source: 'University of Dundee, CAHID - Renske Hoste',
+    parts: [
+      { nameEn: 'Quadriceps Femoris', nameVi: 'Cơ Tứ Đầu Đùi', description: 'Nhóm 4 cơ trước đùi', detail: 'Duỗi thẳng đầu gối' },
+      { nameEn: 'Rectus Femoris', nameVi: 'Cơ Thẳng Đùi', description: 'Cơ giữa tứ đầu', detail: 'Cơ duy nhất qua cả hông và gối' },
+      { nameEn: 'Vastus Lateralis', nameVi: 'Cơ Rộng Ngoài', description: 'Cơ ngoài tứ đầu', detail: 'Cơ lớn nhất trong tứ đầu' },
+      { nameEn: 'Vastus Medialis', nameVi: 'Cơ Rộng Trong', description: 'Cơ trong tứ đầu', detail: 'Quan trọng cho ổn định xương bánh chè' },
+      { nameEn: 'Vastus Intermedius', nameVi: 'Cơ Rộng Giữa', description: 'Cơ sâu nhất', detail: 'Nằm dưới cơ thẳng đùi' },
+      { nameEn: 'Hamstrings', nameVi: 'Cơ Gân Kheo', description: 'Nhóm cơ sau đùi', detail: 'Gập gối và duỗi hông' },
+      { nameEn: 'Biceps Femoris', nameVi: 'Cơ Nhị Đầu Đùi', description: 'Cơ ngoài gân kheo', detail: 'Có 2 đầu: dài và ngắn' },
+      { nameEn: 'Gastrocnemius', nameVi: 'Cơ Bụng Chân', description: 'Cơ bắp chân', detail: 'Qua khớp gối, giúp gập gối' },
+      { nameEn: 'Popliteus', nameVi: 'Cơ Khoeo', description: 'Cơ nhỏ sau gối', detail: 'Mở khóa gối khi bắt đầu gập' },
+      { nameEn: 'Sartorius', nameVi: 'Cơ May', description: 'Cơ dài nhất cơ thể', detail: 'Chạy chéo từ hông đến cẳng chân' },
+    ],
+  },
 };
 
 // System icon mapping
 const SYSTEM_ICONS: Record<string, React.ReactNode> = {
   skeletal: <Bone className="w-4 h-4" />,
   muscular: <Dumbbell className="w-4 h-4" />,
+  'muscular-knee': <Dumbbell className="w-4 h-4" />,
   circulatory: <Heart className="w-4 h-4" />,
+  'circulatory-external': <Heart className="w-4 h-4" />,
   respiratory: <Wind className="w-4 h-4" />,
   digestive: <Apple className="w-4 h-4" />,
   nervous: <Brain className="w-4 h-4" />,
+  'nervous-cranial': <Brain className="w-4 h-4" />,
+  'nervous-spinal': <Brain className="w-4 h-4" />,
+};
+
+// Sub-models for each system (from University of Dundee)
+const DUNDEE_SUBMODELS: Record<string, Array<{ key: string; label: string }>> = {
+  nervous: [
+    { key: 'nervous', label: 'Hệ Thần Kinh Toàn Bộ' },
+    { key: 'nervous-cranial', label: '12 Dây Thần Kinh Sọ' },
+    { key: 'nervous-spinal', label: 'Tủy Sống Chi Tiết' },
+  ],
+  circulatory: [
+    { key: 'circulatory', label: 'Tim - Cấu Trúc Bên Trong' },
+    { key: 'circulatory-external', label: 'Tim - Cấu Trúc Bên Ngoài' },
+  ],
+  muscular: [
+    { key: 'muscular', label: 'Hệ Cơ Toàn Thân' },
+    { key: 'muscular-knee', label: 'Cơ Vùng Gối Chi Tiết' },
+  ],
 };
 
 // System item in sidebar
@@ -329,14 +457,20 @@ function SystemItem({
   onToggle,
   isSelected,
   onSelect,
+  activeModelKey,
+  onSelectSubModel,
 }: {
   system: typeof bodySystems[0];
   isExpanded: boolean;
   onToggle: () => void;
   isSelected: boolean;
   onSelect: () => void;
+  activeModelKey: string;
+  onSelectSubModel: (key: string) => void;
 }) {
   const { setSelectedOrgan, setActiveSystem } = useExplorerStore();
+  const subModels = DUNDEE_SUBMODELS[system.id];
+  const hasSubModels = subModels && subModels.length > 1;
 
   return (
     <div className={`border-b border-slate-700 ${isSelected ? 'bg-slate-700/60' : ''}`}>
@@ -359,7 +493,7 @@ function SystemItem({
             {system.nameVi}
           </span>
           <span className="text-xs text-slate-400">
-            {system.organs.length} bộ phận
+            {hasSubModels ? `${subModels.length} mô hình 3D` : `${system.organs.length} bộ phận`}
           </span>
         </div>
 
@@ -382,6 +516,39 @@ function SystemItem({
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden bg-slate-800/50"
           >
+            {/* Sub-models from Dundee (if available) */}
+            {hasSubModels && (
+              <div className="px-3 py-2 border-b border-slate-700/50">
+                <p className="text-[10px] text-amber-400 uppercase tracking-wider mb-2 px-1">
+                  🎓 University of Dundee
+                </p>
+                {subModels.map((sub) => (
+                  <div
+                    key={sub.key}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-all text-sm mb-1 ${
+                      activeModelKey === sub.key
+                        ? 'bg-blue-600/30 text-blue-300 border border-blue-500/40'
+                        : 'hover:bg-slate-600/50 text-slate-300 hover:text-white'
+                    }`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectSubModel(sub.key);
+                    }}
+                  >
+                    <div
+                      className="w-2 h-2 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: activeModelKey === sub.key ? '#60A5FA' : system.color }}
+                    />
+                    {sub.label}
+                    {activeModelKey === sub.key && (
+                      <Eye className="w-3 h-3 ml-auto text-blue-400" />
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Organ list */}
             {system.organs.map((organ) => (
               <div
                 key={organ.id}
@@ -686,8 +853,14 @@ export default function ExplorerPage() {
                   system={system}
                   isExpanded={expandedSystems.has(system.id)}
                   onToggle={() => toggleExpand(system.id)}
-                  isSelected={activeModelKey === system.id}
+                  isSelected={activeModelKey === system.id || activeModelKey.startsWith(system.id + '-')}
                   onSelect={() => selectSystem(system.id)}
+                  activeModelKey={activeModelKey}
+                  onSelectSubModel={(key) => {
+                    setActiveModelKey(key);
+                    setActiveSystem(system.id);
+                    setShowAnnotations(true);
+                  }}
                 />
               ))}
             </div>
