@@ -12,7 +12,7 @@ import { BodySystem } from '@/types';
 // Sketchfab model UIDs - prioritizing models from University of Dundee, CAHID
 // Source: https://sketchfab.com/anatomy_dundee
 const SKETCHFAB_MODELS: Record<string, { uid: string; title: string; hasAnnotations: boolean; source: string }> = {
-  // === UNIVERSITY OF DUNDEE MODELS ===
+  // === UNIVERSITY OF DUNDEE MODELS - NERVOUS SYSTEM ===
   nervous: {
     uid: '2e6be1399756494b9f185ce8c5900911',
     title: 'The Nervous System',
@@ -31,6 +31,13 @@ const SKETCHFAB_MODELS: Record<string, { uid: string; title: string; hasAnnotati
     hasAnnotations: true,
     source: 'University of Dundee, CAHID',
   },
+  'nervous-limbic': {
+    uid: '7981dff55a8d40259aff2f1d53649ef6',
+    title: 'Limbic System',
+    hasAnnotations: true,
+    source: 'University of Dundee, CAHID',
+  },
+  // === UNIVERSITY OF DUNDEE MODELS - CIRCULATORY ===
   circulatory: {
     uid: '9f48eaa481cc4a43baeb9e1f03882cff',
     title: 'Internal Human Heart Anatomy',
@@ -43,15 +50,57 @@ const SKETCHFAB_MODELS: Record<string, { uid: string; title: string; hasAnnotati
     hasAnnotations: true,
     source: 'University of Dundee, CAHID',
   },
+  // === UNIVERSITY OF DUNDEE MODELS - DIGESTIVE ===
   digestive: {
     uid: '3a920101c4304eacaa3a422faacfc660',
     title: 'Bowel Anatomy',
     hasAnnotations: true,
     source: 'University of Dundee, CAHID',
   },
+  // === UNIVERSITY OF DUNDEE MODELS - MUSCULAR ===
   'muscular-knee': {
     uid: '765feaaebb4743dab7eeabb35c89cf10',
     title: 'Knee Anatomy: Muscles',
+    hasAnnotations: true,
+    source: 'University of Dundee, CAHID',
+  },
+  'muscular-mastication': {
+    uid: 'b362acea258f4bc6af6d2e46d37d30fc',
+    title: 'Muscles of Mastication',
+    hasAnnotations: true,
+    source: 'University of Dundee, CAHID',
+  },
+  'muscular-pelvic': {
+    uid: 'd42a4dc074e14530ae3bfee5eba71493',
+    title: '3D Pelvic Floor Muscles',
+    hasAnnotations: true,
+    source: 'University of Dundee, CAHID',
+  },
+  // === UNIVERSITY OF DUNDEE MODELS - SKELETAL ===
+  'skeletal-skull': {
+    uid: '3571157d910c483e8dd9eb3138952fbd',
+    title: 'Adult Male Skull',
+    hasAnnotations: true,
+    source: 'University of Dundee, CAHID',
+  },
+  // === UNIVERSITY OF DUNDEE MODELS - RESPIRATORY ===
+  'respiratory-larynx': {
+    uid: 'a00bc73a303c46248db6a13a88b23404',
+    title: 'Anatomy of the Larynx',
+    hasAnnotations: true,
+    source: 'University of Dundee, CAHID',
+  },
+  // === UNIVERSITY OF DUNDEE MODELS - LYMPHATIC ===
+  lymphatic: {
+    uid: '14800d739ecb46678d7584a401b0aa77',
+    title: 'Lymphatic System',
+    hasAnnotations: true,
+    source: 'University of Dundee, CAHID',
+  },
+  // === UNIVERSITY OF DUNDEE MODELS - SENSORY ===
+  'sensory-eye': {
+    uid: 'b023a73eadcc47be83e637175f32adf2',
+    title: 'Eyeball and Extra-ocular Muscles',
     hasAnnotations: true,
     source: 'University of Dundee, CAHID',
   },
@@ -417,20 +466,132 @@ const SYSTEM_ANNOTATIONS: Record<string, {
       { nameEn: 'Sartorius', nameVi: 'Cơ May', description: 'Cơ dài nhất cơ thể', detail: 'Chạy chéo từ hông đến cẳng chân' },
     ],
   },
+  // === NEW DUNDEE MODELS ===
+  'nervous-limbic': {
+    title: 'Hệ Viền (Limbic System)',
+    description: 'Hệ viền là nhóm cấu trúc não liên quan đến cảm xúc, trí nhớ và hành vi. Nó đóng vai trò quan trọng trong học tập và phản ứng stress.',
+    funFact: 'Hồi hải mã (hippocampus) được đặt tên theo hình dạng giống con cá ngựa trong tiếng Hy Lạp!',
+    source: 'University of Dundee, CAHID',
+    parts: [
+      { nameEn: 'Hippocampus', nameVi: 'Hồi Hải Mã', description: 'Trung tâm trí nhớ', detail: 'Chuyển ký ức ngắn hạn thành dài hạn' },
+      { nameEn: 'Amygdala', nameVi: 'Hạch Hạnh Nhân', description: 'Trung tâm cảm xúc', detail: 'Xử lý sợ hãi và khoái cảm' },
+      { nameEn: 'Thalamus', nameVi: 'Đồi Thị', description: 'Trạm trung chuyển', detail: 'Chuyển tiếp tín hiệu cảm giác' },
+      { nameEn: 'Hypothalamus', nameVi: 'Vùng Dưới Đồi', description: 'Điều hòa nội tiết', detail: 'Kiểm soát đói, khát, nhiệt độ' },
+      { nameEn: 'Cingulate Gyrus', nameVi: 'Hồi Đai', description: 'Xử lý cảm xúc', detail: 'Liên quan đến đau và hành vi' },
+      { nameEn: 'Fornix', nameVi: 'Vòm Não', description: 'Bó sợi thần kinh', detail: 'Kết nối các phần của hệ viền' },
+    ],
+  },
+  'skeletal-skull': {
+    title: 'Hộp Sọ Nam Trưởng Thành',
+    description: 'Mô hình chi tiết hộp sọ người trưởng thành dựa trên CT scan. Cho thấy cấu trúc xương sọ, hốc mắt, xoang và các chi tiết giải phẫu.',
+    funFact: 'Hộp sọ của trẻ sơ sinh có 6 thóp (fontanelle) để não có thể phát triển, sau đó đóng lại khi 2 tuổi!',
+    source: 'University of Dundee, CAHID',
+    parts: [
+      { nameEn: 'Frontal Bone', nameVi: 'Xương Trán', description: 'Xương phía trước', detail: 'Tạo thành trán và mái hốc mắt' },
+      { nameEn: 'Parietal Bones', nameVi: 'Xương Đỉnh', description: '2 xương trên đỉnh', detail: 'Tạo thành phần lớn nóc sọ' },
+      { nameEn: 'Temporal Bones', nameVi: 'Xương Thái Dương', description: '2 xương hai bên', detail: 'Chứa tai trong và xương con' },
+      { nameEn: 'Occipital Bone', nameVi: 'Xương Chẩm', description: 'Xương phía sau', detail: 'Có lỗ chẩm cho tủy sống đi qua' },
+      { nameEn: 'Sphenoid Bone', nameVi: 'Xương Bướm', description: 'Xương hình cánh bướm', detail: 'Nền sọ, chứa yên tuyến yên' },
+      { nameEn: 'Maxilla', nameVi: 'Xương Hàm Trên', description: 'Xương cố định', detail: 'Chứa răng hàm trên và xoang' },
+      { nameEn: 'Mandible', nameVi: 'Xương Hàm Dưới', description: 'Xương di động', detail: 'Xương mặt lớn và mạnh nhất' },
+      { nameEn: 'Zygomatic Bone', nameVi: 'Xương Gò Má', description: 'Xương má', detail: 'Tạo nên gò má và hốc mắt' },
+      { nameEn: 'Nasal Bones', nameVi: 'Xương Mũi', description: '2 xương nhỏ', detail: 'Tạo sống mũi' },
+      { nameEn: 'Orbit', nameVi: 'Hốc Mắt', description: 'Ổ chứa mắt', detail: 'Gồm 7 xương tạo thành' },
+    ],
+  },
+  'muscular-mastication': {
+    title: 'Cơ Nhai',
+    description: 'Các cơ điều khiển hàm dưới, giúp nhai thức ăn. Đây là nhóm cơ mạnh nhất so với kích thước trong cơ thể.',
+    funFact: 'Cơ nhai có thể tạo lực cắn lên đến 90 kg - mạnh hơn cả lực cắn của chó!',
+    source: 'University of Dundee, CAHID',
+    parts: [
+      { nameEn: 'Masseter', nameVi: 'Cơ Cắn', description: 'Cơ nhai chính', detail: 'Cơ mạnh nhất, nâng hàm dưới' },
+      { nameEn: 'Temporalis', nameVi: 'Cơ Thái Dương', description: 'Cơ hình quạt', detail: 'Nâng và kéo hàm về sau' },
+      { nameEn: 'Medial Pterygoid', nameVi: 'Cơ Chân Bướm Trong', description: 'Cơ sâu trong', detail: 'Giúp nâng và đưa hàm sang bên' },
+      { nameEn: 'Lateral Pterygoid', nameVi: 'Cơ Chân Bướm Ngoài', description: 'Cơ mở hàm', detail: 'Duy nhất giúp há miệng và đẩy hàm' },
+    ],
+  },
+  'muscular-pelvic': {
+    title: 'Cơ Sàn Chậu',
+    description: 'Nhóm cơ tạo thành "sàn" nâng đỡ các cơ quan vùng chậu. Quan trọng cho kiểm soát tiểu tiện và chức năng sinh sản.',
+    funFact: 'Cơ sàn chậu hoạt động 24/7 để nâng đỡ cơ quan, nhưng hầu hết mọi người không biết cách tập luyện chúng!',
+    source: 'University of Dundee, CAHID - Dr. Clare Lamb',
+    parts: [
+      { nameEn: 'Levator Ani', nameVi: 'Cơ Nâng Hậu Môn', description: 'Cơ sàn chính', detail: 'Gồm 3 phần: mu, chậu, cụt' },
+      { nameEn: 'Pubococcygeus', nameVi: 'Cơ Mu-Cụt', description: 'Phần giữa', detail: 'Kiểm soát tiểu tiện' },
+      { nameEn: 'Iliococcygeus', nameVi: 'Cơ Chậu-Cụt', description: 'Phần bên', detail: 'Tạo thành phần lớn sàn chậu' },
+      { nameEn: 'Coccygeus', nameVi: 'Cơ Cụt', description: 'Cơ phía sau', detail: 'Nâng đỡ xương cụt' },
+      { nameEn: 'External Sphincter', nameVi: 'Cơ Thắt Ngoài', description: 'Cơ vòng kiểm soát', detail: 'Kiểm soát đại tiện' },
+    ],
+  },
+  'respiratory-larynx': {
+    title: 'Thanh Quản',
+    description: 'Thanh quản nằm ở cổ, chứa dây thanh âm và kiểm soát đường thở. Quan trọng cho phát âm và bảo vệ đường hô hấp.',
+    funFact: 'Dây thanh âm rung khoảng 100-1000 lần/giây khi nói, và nam giới có dây thanh dài hơn nên giọng trầm hơn!',
+    source: 'University of Dundee School of Medicine',
+    parts: [
+      { nameEn: 'Epiglottis', nameVi: 'Nắp Thanh Môn', description: 'Sụn hình lá', detail: 'Đậy thanh quản khi nuốt' },
+      { nameEn: 'Thyroid Cartilage', nameVi: 'Sụn Giáp', description: 'Sụn lớn nhất', detail: 'Tạo "trái cổ Adam"' },
+      { nameEn: 'Cricoid Cartilage', nameVi: 'Sụn Nhẫn', description: 'Sụn hình vòng', detail: 'Duy nhất tạo vòng hoàn chỉnh' },
+      { nameEn: 'Arytenoid Cartilages', nameVi: 'Sụn Phễu', description: '2 sụn nhỏ', detail: 'Điều khiển dây thanh âm' },
+      { nameEn: 'Vocal Cords', nameVi: 'Dây Thanh Âm', description: 'Tạo âm thanh', detail: 'Rung để phát ra giọng nói' },
+      { nameEn: 'Glottis', nameVi: 'Thanh Môn', description: 'Khe giữa dây thanh', detail: 'Không khí đi qua đây' },
+    ],
+  },
+  lymphatic: {
+    title: 'Hệ Bạch Huyết',
+    description: 'Hệ bạch huyết là mạng lưới mạch và hạch giúp loại bỏ chất thải, chống nhiễm trùng và duy trì cân bằng dịch trong cơ thể.',
+    funFact: 'Hệ bạch huyết không có bơm riêng - nó dựa vào cử động cơ và thở để lưu thông dịch bạch huyết!',
+    source: 'University of Dundee, CAHID',
+    parts: [
+      { nameEn: 'Lymph Nodes', nameVi: 'Hạch Bạch Huyết', description: 'Trạm lọc', detail: 'Khoảng 600 hạch trong cơ thể' },
+      { nameEn: 'Lymph Vessels', nameVi: 'Mạch Bạch Huyết', description: 'Mạng lưới ống dẫn', detail: 'Chạy song song với tĩnh mạch' },
+      { nameEn: 'Spleen', nameVi: 'Lá Lách', description: 'Cơ quan lọc máu', detail: 'Phá hủy tế bào máu cũ' },
+      { nameEn: 'Thymus', nameVi: 'Tuyến Ức', description: 'Cơ quan miễn dịch', detail: 'Phát triển tế bào T' },
+      { nameEn: 'Tonsils', nameVi: 'Amidan', description: 'Hạch ở họng', detail: 'Bảo vệ đường hô hấp' },
+      { nameEn: 'Thoracic Duct', nameVi: 'Ống Ngực', description: 'Ống lớn nhất', detail: 'Thu gom bạch huyết từ 3/4 cơ thể' },
+      { nameEn: 'Bone Marrow', nameVi: 'Tủy Xương', description: 'Nơi sinh tế bào', detail: 'Sản xuất tế bào bạch cầu' },
+    ],
+  },
+  'sensory-eye': {
+    title: 'Mắt và Cơ Vận Nhãn',
+    description: 'Giải phẫu nhãn cầu và 6 cơ vận nhãn điều khiển cử động mắt. Mô hình cho thấy cấu trúc chi tiết từ giác mạc đến võng mạc.',
+    funFact: 'Mắt có thể phân biệt khoảng 10 triệu màu sắc khác nhau và xử lý 36,000 bit thông tin mỗi giờ!',
+    source: 'University of Dundee, CAHID - Laura-Jane Logue & Emily M. Adams',
+    parts: [
+      { nameEn: 'Cornea', nameVi: 'Giác Mạc', description: 'Lớp trong suốt', detail: 'Khúc xạ 2/3 ánh sáng vào mắt' },
+      { nameEn: 'Iris', nameVi: 'Mống Mắt', description: 'Phần màu của mắt', detail: 'Điều chỉnh lượng ánh sáng' },
+      { nameEn: 'Pupil', nameVi: 'Đồng Tử', description: 'Lỗ giữa mống', detail: 'Có thể mở rộng gấp 3 lần' },
+      { nameEn: 'Lens', nameVi: 'Thủy Tinh Thể', description: 'Hội tụ ánh sáng', detail: 'Thay đổi hình dạng để lấy nét' },
+      { nameEn: 'Retina', nameVi: 'Võng Mạc', description: 'Màng cảm quang', detail: '120 triệu tế bào que và nón' },
+      { nameEn: 'Optic Nerve', nameVi: 'Thần Kinh Thị Giác', description: 'Truyền hình ảnh', detail: 'Hơn 1 triệu sợi thần kinh' },
+      { nameEn: 'Superior Rectus', nameVi: 'Cơ Thẳng Trên', description: 'Cơ vận nhãn', detail: 'Đưa mắt nhìn lên' },
+      { nameEn: 'Inferior Rectus', nameVi: 'Cơ Thẳng Dưới', description: 'Cơ vận nhãn', detail: 'Đưa mắt nhìn xuống' },
+      { nameEn: 'Lateral Rectus', nameVi: 'Cơ Thẳng Ngoài', description: 'Cơ vận nhãn', detail: 'Đưa mắt nhìn ra ngoài' },
+      { nameEn: 'Medial Rectus', nameVi: 'Cơ Thẳng Trong', description: 'Cơ vận nhãn', detail: 'Đưa mắt nhìn vào trong' },
+    ],
+  },
 };
 
 // System icon mapping
 const SYSTEM_ICONS: Record<string, React.ReactNode> = {
   skeletal: <Bone className="w-4 h-4" />,
+  'skeletal-skull': <Bone className="w-4 h-4" />,
   muscular: <Dumbbell className="w-4 h-4" />,
   'muscular-knee': <Dumbbell className="w-4 h-4" />,
+  'muscular-mastication': <Dumbbell className="w-4 h-4" />,
+  'muscular-pelvic': <Dumbbell className="w-4 h-4" />,
   circulatory: <Heart className="w-4 h-4" />,
   'circulatory-external': <Heart className="w-4 h-4" />,
+  lymphatic: <Heart className="w-4 h-4" />,
   respiratory: <Wind className="w-4 h-4" />,
+  'respiratory-larynx': <Wind className="w-4 h-4" />,
   digestive: <Apple className="w-4 h-4" />,
   nervous: <Brain className="w-4 h-4" />,
   'nervous-cranial': <Brain className="w-4 h-4" />,
   'nervous-spinal': <Brain className="w-4 h-4" />,
+  'nervous-limbic': <Brain className="w-4 h-4" />,
+  'sensory-eye': <Eye className="w-4 h-4" />,
 };
 
 // Sub-models for each system (from University of Dundee)
@@ -439,14 +600,26 @@ const DUNDEE_SUBMODELS: Record<string, Array<{ key: string; label: string }>> = 
     { key: 'nervous', label: 'Hệ Thần Kinh Toàn Bộ' },
     { key: 'nervous-cranial', label: '12 Dây Thần Kinh Sọ' },
     { key: 'nervous-spinal', label: 'Tủy Sống Chi Tiết' },
+    { key: 'nervous-limbic', label: 'Hệ Viền (Limbic)' },
   ],
   circulatory: [
     { key: 'circulatory', label: 'Tim - Cấu Trúc Bên Trong' },
     { key: 'circulatory-external', label: 'Tim - Cấu Trúc Bên Ngoài' },
+    { key: 'lymphatic', label: 'Hệ Bạch Huyết' },
+  ],
+  skeletal: [
+    { key: 'skeletal', label: 'Bộ Xương Toàn Thân' },
+    { key: 'skeletal-skull', label: 'Hộp Sọ Chi Tiết' },
   ],
   muscular: [
     { key: 'muscular', label: 'Hệ Cơ Toàn Thân' },
-    { key: 'muscular-knee', label: 'Cơ Vùng Gối Chi Tiết' },
+    { key: 'muscular-knee', label: 'Cơ Vùng Gối' },
+    { key: 'muscular-mastication', label: 'Cơ Nhai (Mặt)' },
+    { key: 'muscular-pelvic', label: 'Cơ Sàn Chậu' },
+  ],
+  respiratory: [
+    { key: 'respiratory', label: 'Đường Hô Hấp' },
+    { key: 'respiratory-larynx', label: 'Thanh Quản Chi Tiết' },
   ],
 };
 
