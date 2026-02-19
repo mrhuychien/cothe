@@ -2,42 +2,174 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useCallback } from 'react';
-import { ChevronDown, ChevronRight, Eye, Bone, Heart, Wind, Apple, Brain, Dumbbell, Info, Lightbulb, X } from 'lucide-react';
+import { ChevronDown, ChevronRight, Eye, Bone, Heart, Wind, Apple, Brain, Dumbbell, Lightbulb, X, Languages } from 'lucide-react';
 import { Header } from '@/components/shared';
 import { InfoCard } from '@/components/explorer';
 import { useExplorerStore } from '@/stores/useExplorerStore';
 import { bodySystems } from '@/data/systems';
 import { BodySystem } from '@/types';
 
-// Sketchfab model UIDs for each body system
-const SKETCHFAB_MODELS: Record<string, { uid: string; title: string }> = {
+// Sketchfab model UIDs - using models with annotations from University of Dundee and other educational sources
+const SKETCHFAB_MODELS: Record<string, { uid: string; title: string; hasAnnotations: boolean }> = {
   full: {
     uid: 'faf0f3eaec554bcf854be2038993024f',
     title: 'Human Anatomy',
+    hasAnnotations: false,
   },
   skeletal: {
     uid: '911b9df7e7834175b69b4840ea15e054',
     title: 'Human Skeleton',
+    hasAnnotations: true,
   },
   muscular: {
-    uid: 'faf0f3eaec554bcf854be2038993024f',
-    title: 'Human Anatomy - Muscular',
+    uid: '4f258907dfb6477aa9bf4dfb5833a797',
+    title: 'Simplified Male Muscular System',
+    hasAnnotations: true,
   },
   circulatory: {
-    uid: '6a7a537a71444f6e8201e18a685a013d',
-    title: 'Circulatory System',
+    uid: '9f48eaa481cc4a43baeb9e1f03882cff',
+    title: 'Internal Human Heart Anatomy - University of Dundee',
+    hasAnnotations: true,
   },
   respiratory: {
-    uid: '5ca9b0b5d95942aeb5a746a9f56d5d82',
-    title: 'Cardiovascular and Respiratory Organs',
+    uid: '1cd55d26c1254ab7a5d0845fb9a207fe',
+    title: 'Anatomy of the Airways - UMCG',
+    hasAnnotations: true,
   },
   digestive: {
-    uid: 'bced6b6ebded4845bcfb2496a6e6d35c',
-    title: 'Human Organs - Digestive',
+    uid: 'f078cef244ec481e93013982a5393ffe',
+    title: 'Digestive System | Human Anatomy',
+    hasAnnotations: true,
   },
   nervous: {
     uid: '2e6be1399756494b9f185ce8c5900911',
-    title: 'The Nervous System',
+    title: 'The Nervous System - University of Dundee',
+    hasAnnotations: true,
+  },
+};
+
+// English to Vietnamese annotation translations
+// When user clicks on English annotation in Sketchfab, they can find Vietnamese here
+const ANNOTATION_TRANSLATIONS: Record<string, Record<string, { vi: string; description: string }>> = {
+  skeletal: {
+    'Skull': { vi: 'Hộp Sọ', description: 'Bảo vệ não bộ, gồm 22 mảnh xương' },
+    'Cranium': { vi: 'Hộp Sọ', description: 'Phần xương bao quanh não' },
+    'Mandible': { vi: 'Xương Hàm Dưới', description: 'Xương di động duy nhất của đầu' },
+    'Clavicle': { vi: 'Xương Đòn', description: 'Nối xương ức với xương bả vai' },
+    'Scapula': { vi: 'Xương Bả Vai', description: 'Xương dẹt hình tam giác ở lưng' },
+    'Sternum': { vi: 'Xương Ức', description: 'Xương dẹt ở giữa ngực' },
+    'Ribs': { vi: 'Xương Sườn', description: '12 cặp xương bảo vệ tim và phổi' },
+    'Vertebrae': { vi: 'Đốt Sống', description: '33 đốt sống tạo thành cột sống' },
+    'Spine': { vi: 'Cột Sống', description: 'Trục chính của bộ xương' },
+    'Cervical': { vi: 'Đốt Sống Cổ', description: '7 đốt sống vùng cổ' },
+    'Thoracic': { vi: 'Đốt Sống Ngực', description: '12 đốt sống vùng ngực' },
+    'Lumbar': { vi: 'Đốt Sống Thắt Lưng', description: '5 đốt sống vùng lưng dưới' },
+    'Sacrum': { vi: 'Xương Cùng', description: '5 đốt sống hợp nhất' },
+    'Pelvis': { vi: 'Xương Chậu', description: 'Nâng đỡ nội tạng và nối với chân' },
+    'Humerus': { vi: 'Xương Cánh Tay', description: 'Xương dài từ vai đến khuỷu' },
+    'Radius': { vi: 'Xương Quay', description: 'Xương cẳng tay phía ngón cái' },
+    'Ulna': { vi: 'Xương Trụ', description: 'Xương cẳng tay phía ngón út' },
+    'Femur': { vi: 'Xương Đùi', description: 'Xương dài và chắc nhất cơ thể' },
+    'Patella': { vi: 'Xương Bánh Chè', description: 'Xương bảo vệ khớp gối' },
+    'Tibia': { vi: 'Xương Chày', description: 'Xương ống chân lớn' },
+    'Fibula': { vi: 'Xương Mác', description: 'Xương ống chân nhỏ' },
+  },
+  muscular: {
+    'Trapezius': { vi: 'Cơ Thang', description: 'Cơ lưng trên, giúp cử động vai và cổ' },
+    'Deltoid': { vi: 'Cơ Delta', description: 'Cơ vai hình tam giác' },
+    'Pectoralis Major': { vi: 'Cơ Ngực Lớn', description: 'Cơ ngực chính, giúp đẩy và ôm' },
+    'Biceps': { vi: 'Cơ Nhị Đầu', description: 'Cơ trước cánh tay, giúp gập khuỷu' },
+    'Triceps': { vi: 'Cơ Tam Đầu', description: 'Cơ sau cánh tay, giúp duỗi khuỷu' },
+    'Latissimus Dorsi': { vi: 'Cơ Lưng Rộng', description: 'Cơ lưng lớn nhất' },
+    'Rectus Abdominis': { vi: 'Cơ Thẳng Bụng', description: 'Cơ bụng 6 múi' },
+    'Obliques': { vi: 'Cơ Chéo Bụng', description: 'Cơ hai bên hông' },
+    'Gluteus Maximus': { vi: 'Cơ Mông Lớn', description: 'Cơ lớn nhất cơ thể' },
+    'Quadriceps': { vi: 'Cơ Tứ Đầu Đùi', description: 'Cơ trước đùi, giúp duỗi gối' },
+    'Hamstrings': { vi: 'Cơ Gân Kheo', description: 'Cơ sau đùi, giúp gập gối' },
+    'Gastrocnemius': { vi: 'Cơ Bắp Chân', description: 'Cơ sau cẳng chân' },
+    'Soleus': { vi: 'Cơ Dép', description: 'Cơ sâu dưới bắp chân' },
+  },
+  circulatory: {
+    'Heart': { vi: 'Tim', description: 'Cơ quan bơm máu đi khắp cơ thể' },
+    'Left Ventricle': { vi: 'Tâm Thất Trái', description: 'Buồng tim bơm máu đi toàn thân' },
+    'Right Ventricle': { vi: 'Tâm Thất Phải', description: 'Buồng tim bơm máu đến phổi' },
+    'Left Atrium': { vi: 'Tâm Nhĩ Trái', description: 'Nhận máu giàu oxy từ phổi' },
+    'Right Atrium': { vi: 'Tâm Nhĩ Phải', description: 'Nhận máu nghèo oxy từ cơ thể' },
+    'Aorta': { vi: 'Động Mạch Chủ', description: 'Động mạch lớn nhất cơ thể' },
+    'Pulmonary Artery': { vi: 'Động Mạch Phổi', description: 'Đưa máu từ tim đến phổi' },
+    'Pulmonary Vein': { vi: 'Tĩnh Mạch Phổi', description: 'Đưa máu giàu oxy từ phổi về tim' },
+    'Vena Cava': { vi: 'Tĩnh Mạch Chủ', description: 'Tĩnh mạch lớn nhất đưa máu về tim' },
+    'Superior Vena Cava': { vi: 'Tĩnh Mạch Chủ Trên', description: 'Nhận máu từ phần trên cơ thể' },
+    'Inferior Vena Cava': { vi: 'Tĩnh Mạch Chủ Dưới', description: 'Nhận máu từ phần dưới cơ thể' },
+    'Coronary Arteries': { vi: 'Động Mạch Vành', description: 'Nuôi dưỡng cơ tim' },
+    'Mitral Valve': { vi: 'Van Hai Lá', description: 'Van giữa tâm nhĩ và tâm thất trái' },
+    'Tricuspid Valve': { vi: 'Van Ba Lá', description: 'Van giữa tâm nhĩ và tâm thất phải' },
+    'Aortic Valve': { vi: 'Van Động Mạch Chủ', description: 'Van giữa tâm thất trái và động mạch chủ' },
+    'Pulmonary Valve': { vi: 'Van Động Mạch Phổi', description: 'Van giữa tâm thất phải và động mạch phổi' },
+  },
+  respiratory: {
+    'Trachea': { vi: 'Khí Quản', description: 'Ống dẫn khí từ họng đến phổi' },
+    'Bronchi': { vi: 'Phế Quản', description: 'Nhánh của khí quản vào phổi' },
+    'Bronchus': { vi: 'Phế Quản', description: 'Nhánh khí quản chính' },
+    'Left Bronchus': { vi: 'Phế Quản Trái', description: 'Nhánh vào phổi trái' },
+    'Right Bronchus': { vi: 'Phế Quản Phải', description: 'Nhánh vào phổi phải' },
+    'Bronchioles': { vi: 'Tiểu Phế Quản', description: 'Nhánh nhỏ của phế quản' },
+    'Lungs': { vi: 'Phổi', description: 'Cơ quan trao đổi khí' },
+    'Left Lung': { vi: 'Phổi Trái', description: 'Có 2 thùy, nhỏ hơn phổi phải' },
+    'Right Lung': { vi: 'Phổi Phải', description: 'Có 3 thùy, lớn hơn phổi trái' },
+    'Alveoli': { vi: 'Phế Nang', description: 'Túi khí nhỏ trao đổi O2 và CO2' },
+    'Diaphragm': { vi: 'Cơ Hoành', description: 'Cơ chính cho việc hô hấp' },
+    'Pleura': { vi: 'Màng Phổi', description: 'Màng bao quanh phổi' },
+    'Larynx': { vi: 'Thanh Quản', description: 'Hộp thoại, chứa dây thanh âm' },
+    'Epiglottis': { vi: 'Nắp Thanh Quản', description: 'Đậy khí quản khi nuốt' },
+    'Carina': { vi: 'Mào Khí Quản', description: 'Điểm phân chia khí quản thành 2 phế quản' },
+  },
+  digestive: {
+    'Mouth': { vi: 'Miệng', description: 'Nơi bắt đầu tiêu hóa' },
+    'Oral Cavity': { vi: 'Khoang Miệng', description: 'Chứa răng và lưỡi' },
+    'Esophagus': { vi: 'Thực Quản', description: 'Ống nối họng với dạ dày' },
+    'Stomach': { vi: 'Dạ Dày', description: 'Túi chứa và nghiền thức ăn' },
+    'Liver': { vi: 'Gan', description: 'Cơ quan lớn nhất, lọc độc tố' },
+    'Gallbladder': { vi: 'Túi Mật', description: 'Chứa mật do gan tiết ra' },
+    'Pancreas': { vi: 'Tuyến Tụy', description: 'Tiết enzyme và insulin' },
+    'Small Intestine': { vi: 'Ruột Non', description: 'Hấp thu 90% chất dinh dưỡng' },
+    'Duodenum': { vi: 'Tá Tràng', description: 'Phần đầu ruột non' },
+    'Jejunum': { vi: 'Hỗng Tràng', description: 'Phần giữa ruột non' },
+    'Ileum': { vi: 'Hồi Tràng', description: 'Phần cuối ruột non' },
+    'Large Intestine': { vi: 'Ruột Già', description: 'Hấp thu nước và tạo phân' },
+    'Colon': { vi: 'Đại Tràng', description: 'Phần chính của ruột già' },
+    'Ascending Colon': { vi: 'Đại Tràng Lên', description: 'Phần bên phải bụng' },
+    'Transverse Colon': { vi: 'Đại Tràng Ngang', description: 'Phần ngang bụng trên' },
+    'Descending Colon': { vi: 'Đại Tràng Xuống', description: 'Phần bên trái bụng' },
+    'Sigmoid Colon': { vi: 'Đại Tràng Sigma', description: 'Phần hình chữ S' },
+    'Rectum': { vi: 'Trực Tràng', description: 'Phần cuối ruột già' },
+    'Appendix': { vi: 'Ruột Thừa', description: 'Phần nhỏ ở đầu ruột già' },
+    'Spleen': { vi: 'Lá Lách', description: 'Lọc máu và miễn dịch' },
+  },
+  nervous: {
+    'Brain': { vi: 'Não', description: 'Trung tâm điều khiển cơ thể' },
+    'Cerebrum': { vi: 'Đại Não', description: 'Phần lớn nhất, điều khiển suy nghĩ' },
+    'Cerebral Cortex': { vi: 'Vỏ Não', description: 'Lớp ngoài của đại não' },
+    'Frontal Lobe': { vi: 'Thùy Trán', description: 'Điều khiển tính cách, quyết định' },
+    'Parietal Lobe': { vi: 'Thùy Đỉnh', description: 'Xử lý xúc giác và không gian' },
+    'Temporal Lobe': { vi: 'Thùy Thái Dương', description: 'Xử lý âm thanh và ký ức' },
+    'Occipital Lobe': { vi: 'Thùy Chẩm', description: 'Xử lý hình ảnh từ mắt' },
+    'Cerebellum': { vi: 'Tiểu Não', description: 'Điều khiển thăng bằng và phối hợp' },
+    'Brain Stem': { vi: 'Thân Não', description: 'Điều khiển chức năng sống cơ bản' },
+    'Brainstem': { vi: 'Thân Não', description: 'Nối não với tủy sống' },
+    'Medulla Oblongata': { vi: 'Hành Não', description: 'Điều khiển nhịp tim, thở' },
+    'Pons': { vi: 'Cầu Não', description: 'Kết nối các phần của não' },
+    'Midbrain': { vi: 'Não Giữa', description: 'Xử lý thị giác và thính giác' },
+    'Spinal Cord': { vi: 'Tủy Sống', description: 'Truyền tín hiệu giữa não và cơ thể' },
+    'Vertebral Column': { vi: 'Cột Sống', description: 'Bảo vệ tủy sống' },
+    'Spinal Nerves': { vi: 'Dây Thần Kinh Tủy', description: '31 cặp dây thần kinh' },
+    'Cervical Nerves': { vi: 'Dây Thần Kinh Cổ', description: '8 cặp dây thần kinh vùng cổ' },
+    'Thoracic Nerves': { vi: 'Dây Thần Kinh Ngực', description: '12 cặp dây thần kinh vùng ngực' },
+    'Lumbar Nerves': { vi: 'Dây Thần Kinh Thắt Lưng', description: '5 cặp dây thần kinh vùng lưng' },
+    'Sacral Nerves': { vi: 'Dây Thần Kinh Cùng', description: '5 cặp dây thần kinh vùng cùng' },
+    'Corpus Callosum': { vi: 'Thể Chai', description: 'Kết nối 2 bán cầu não' },
+    'Thalamus': { vi: 'Đồi Thị', description: 'Trạm trung chuyển tín hiệu' },
+    'Hypothalamus': { vi: 'Vùng Dưới Đồi', description: 'Điều hòa nội tiết và nhiệt độ' },
   },
 };
 
@@ -46,8 +178,10 @@ const SYSTEM_ANNOTATIONS: Record<string, {
   title: string;
   description: string;
   funFact: string;
+  source: string;
   parts: Array<{
-    name: string;
+    nameEn: string;
+    nameVi: string;
     description: string;
     detail: string;
   }>;
@@ -56,101 +190,124 @@ const SYSTEM_ANNOTATIONS: Record<string, {
     title: 'Cơ Thể Người',
     description: 'Cơ thể người là một hệ thống phức tạp gồm nhiều cơ quan phối hợp hoạt động. Mỗi hệ cơ quan đảm nhận một chức năng riêng biệt để duy trì sự sống.',
     funFact: 'Cơ thể người có khoảng 37.2 nghìn tỷ tế bào!',
+    source: 'mohamedhussien - Sketchfab',
     parts: [
-      { name: 'Hệ Xương', description: '206 xương tạo khung đỡ cơ thể', detail: 'Bảo vệ các cơ quan và tạo hình dáng' },
-      { name: 'Hệ Cơ', description: 'Hơn 600 cơ giúp cử động', detail: 'Chiếm khoảng 40% trọng lượng cơ thể' },
-      { name: 'Hệ Tuần Hoàn', description: 'Tim và mạch máu vận chuyển dinh dưỡng', detail: 'Tim đập 100,000 lần mỗi ngày' },
-      { name: 'Hệ Hô Hấp', description: 'Phổi trao đổi oxy và CO2', detail: 'Thở khoảng 20,000 lần/ngày' },
-      { name: 'Hệ Tiêu Hóa', description: 'Phân giải thức ăn thành năng lượng', detail: 'Ruột non dài khoảng 6-7 mét' },
-      { name: 'Hệ Thần Kinh', description: 'Não và dây thần kinh điều khiển cơ thể', detail: 'Não có 86 tỷ tế bào thần kinh' },
+      { nameEn: 'Skeletal System', nameVi: 'Hệ Xương', description: '206 xương tạo khung đỡ cơ thể', detail: 'Bảo vệ các cơ quan và tạo hình dáng' },
+      { nameEn: 'Muscular System', nameVi: 'Hệ Cơ', description: 'Hơn 600 cơ giúp cử động', detail: 'Chiếm khoảng 40% trọng lượng cơ thể' },
+      { nameEn: 'Circulatory System', nameVi: 'Hệ Tuần Hoàn', description: 'Tim và mạch máu vận chuyển dinh dưỡng', detail: 'Tim đập 100,000 lần mỗi ngày' },
+      { nameEn: 'Respiratory System', nameVi: 'Hệ Hô Hấp', description: 'Phổi trao đổi oxy và CO2', detail: 'Thở khoảng 20,000 lần/ngày' },
+      { nameEn: 'Digestive System', nameVi: 'Hệ Tiêu Hóa', description: 'Phân giải thức ăn thành năng lượng', detail: 'Ruột non dài khoảng 6-7 mét' },
+      { nameEn: 'Nervous System', nameVi: 'Hệ Thần Kinh', description: 'Não và dây thần kinh điều khiển cơ thể', detail: 'Não có 86 tỷ tế bào thần kinh' },
     ],
   },
   skeletal: {
     title: 'Hệ Xương',
     description: 'Hệ xương gồm 206 chiếc xương, tạo thành bộ khung nâng đỡ toàn bộ cơ thể. Xương còn bảo vệ các cơ quan quan trọng như não, tim và phổi.',
     funFact: 'Xương đùi là xương dài và chắc nhất trong cơ thể, có thể chịu lực gấp 30 lần trọng lượng cơ thể!',
+    source: 'Human Skeleton - Sketchfab',
     parts: [
-      { name: 'Hộp Sọ', description: 'Bảo vệ não bộ', detail: 'Gồm 22 mảnh xương ghép lại với nhau' },
-      { name: 'Cột Sống', description: '33 đốt sống xếp chồng lên nhau', detail: 'Bảo vệ tủy sống và giúp cơ thể đứng thẳng' },
-      { name: 'Lồng Ngực', description: '12 cặp xương sườn', detail: 'Bảo vệ tim và phổi' },
-      { name: 'Xương Chậu', description: 'Nối cột sống với chân', detail: 'Chịu toàn bộ trọng lượng phần trên cơ thể' },
-      { name: 'Xương Đùi', description: 'Xương dài nhất cơ thể', detail: 'Chiếm khoảng 1/4 chiều cao cơ thể' },
-      { name: 'Xương Cánh Tay', description: 'Xương cánh tay trên (xương cánh)', detail: 'Nối vai với khuỷu tay' },
-      { name: 'Xương Bàn Tay', description: '27 xương nhỏ ở mỗi bàn tay', detail: 'Cho phép cử động linh hoạt' },
-      { name: 'Xương Bàn Chân', description: '26 xương ở mỗi bàn chân', detail: 'Hỗ trợ đi lại và giữ thăng bằng' },
+      { nameEn: 'Skull / Cranium', nameVi: 'Hộp Sọ', description: 'Bảo vệ não bộ', detail: 'Gồm 22 mảnh xương ghép lại với nhau' },
+      { nameEn: 'Mandible', nameVi: 'Xương Hàm Dưới', description: 'Xương di động duy nhất của đầu', detail: 'Giúp nhai và nói chuyện' },
+      { nameEn: 'Vertebrae / Spine', nameVi: 'Cột Sống', description: '33 đốt sống xếp chồng', detail: 'Bảo vệ tủy sống và giữ thăng bằng' },
+      { nameEn: 'Ribs', nameVi: 'Xương Sườn', description: '12 cặp xương sườn', detail: 'Bảo vệ tim và phổi' },
+      { nameEn: 'Sternum', nameVi: 'Xương Ức', description: 'Xương dẹt giữa ngực', detail: 'Nơi gắn kết xương sườn phía trước' },
+      { nameEn: 'Clavicle', nameVi: 'Xương Đòn', description: 'Nối vai với thân', detail: 'Xương thường gãy nhất khi ngã' },
+      { nameEn: 'Scapula', nameVi: 'Xương Bả Vai', description: 'Xương dẹt hình tam giác', detail: 'Tạo khớp vai với xương cánh tay' },
+      { nameEn: 'Humerus', nameVi: 'Xương Cánh Tay', description: 'Xương dài từ vai đến khuỷu', detail: 'Nối với xương quay và xương trụ' },
+      { nameEn: 'Pelvis', nameVi: 'Xương Chậu', description: 'Nối cột sống với chân', detail: 'Chịu toàn bộ trọng lượng phần trên' },
+      { nameEn: 'Femur', nameVi: 'Xương Đùi', description: 'Xương dài nhất cơ thể', detail: 'Chiếm khoảng 1/4 chiều cao cơ thể' },
+      { nameEn: 'Patella', nameVi: 'Xương Bánh Chè', description: 'Bảo vệ khớp gối', detail: 'Xương hình tam giác phía trước gối' },
+      { nameEn: 'Tibia', nameVi: 'Xương Chày', description: 'Xương ống chân lớn', detail: 'Chịu phần lớn trọng lượng cơ thể' },
     ],
   },
   muscular: {
     title: 'Hệ Cơ',
     description: 'Cơ thể có hơn 600 cơ, giúp chúng ta cử động, giữ tư thế và tạo ra nhiệt. Cơ chiếm khoảng 40% trọng lượng cơ thể.',
     funFact: 'Cơ mặt có hơn 40 cơ nhỏ, giúp chúng ta biểu lộ hàng nghìn biểu cảm khác nhau!',
+    source: 'Alexander - Simplified Male Muscular System',
     parts: [
-      { name: 'Cơ Delta', description: 'Cơ vai hình tam giác', detail: 'Giúp nâng cánh tay lên cao' },
-      { name: 'Cơ Ngực Lớn', description: 'Cơ ngực chính', detail: 'Giúp đẩy và ôm' },
-      { name: 'Cơ Nhị Đầu', description: 'Cơ trước cánh tay', detail: 'Giúp gập khuỷu tay (cơ bắp tay)' },
-      { name: 'Cơ Tam Đầu', description: 'Cơ sau cánh tay', detail: 'Giúp duỗi thẳng khuỷu tay' },
-      { name: 'Cơ Bụng', description: '6 múi cơ bụng', detail: 'Bảo vệ nội tạng và giữ thăng bằng' },
-      { name: 'Cơ Tứ Đầu Đùi', description: 'Cơ trước đùi', detail: 'Giúp đi, chạy và đá' },
-      { name: 'Cơ Bắp Chân', description: 'Cơ sau cẳng chân', detail: 'Giúp đứng nhón chân và nhảy' },
-      { name: 'Cơ Mông', description: 'Cơ lớn nhất cơ thể', detail: 'Giúp đứng lên và leo cầu thang' },
+      { nameEn: 'Trapezius', nameVi: 'Cơ Thang', description: 'Cơ lưng trên hình thang', detail: 'Giúp cử động vai và nghiêng cổ' },
+      { nameEn: 'Deltoid', nameVi: 'Cơ Delta', description: 'Cơ vai hình tam giác', detail: 'Giúp nâng cánh tay lên cao' },
+      { nameEn: 'Pectoralis Major', nameVi: 'Cơ Ngực Lớn', description: 'Cơ ngực chính', detail: 'Giúp đẩy, ôm và xoay cánh tay' },
+      { nameEn: 'Biceps', nameVi: 'Cơ Nhị Đầu', description: 'Cơ trước cánh tay', detail: 'Giúp gập khuỷu tay (cơ bắp tay)' },
+      { nameEn: 'Triceps', nameVi: 'Cơ Tam Đầu', description: 'Cơ sau cánh tay', detail: 'Giúp duỗi thẳng khuỷu tay' },
+      { nameEn: 'Latissimus Dorsi', nameVi: 'Cơ Lưng Rộng', description: 'Cơ lưng lớn nhất', detail: 'Giúp kéo và bơi lội' },
+      { nameEn: 'Rectus Abdominis', nameVi: 'Cơ Thẳng Bụng', description: '6 múi cơ bụng', detail: 'Bảo vệ nội tạng và gập thân' },
+      { nameEn: 'Gluteus Maximus', nameVi: 'Cơ Mông Lớn', description: 'Cơ lớn nhất cơ thể', detail: 'Giúp đứng lên, chạy và leo cầu thang' },
+      { nameEn: 'Quadriceps', nameVi: 'Cơ Tứ Đầu Đùi', description: 'Cơ trước đùi', detail: 'Giúp đi, chạy, đá và duỗi gối' },
+      { nameEn: 'Hamstrings', nameVi: 'Cơ Gân Kheo', description: 'Cơ sau đùi', detail: 'Giúp gập gối và duỗi hông' },
+      { nameEn: 'Gastrocnemius', nameVi: 'Cơ Bắp Chân', description: 'Cơ sau cẳng chân', detail: 'Giúp đứng nhón chân và nhảy' },
     ],
   },
   circulatory: {
     title: 'Hệ Tuần Hoàn',
     description: 'Hệ tuần hoàn gồm tim, máu và mạch máu. Tim bơm máu đi khắp cơ thể, mang oxy và chất dinh dưỡng đến các tế bào.',
     funFact: 'Nếu nối tất cả mạch máu trong cơ thể lại, chúng sẽ dài khoảng 100,000 km - đủ để quấn quanh Trái Đất 2.5 vòng!',
+    source: 'University of Dundee, CAHID',
     parts: [
-      { name: 'Tim', description: 'Cơ quan bơm máu', detail: 'Đập khoảng 100,000 lần mỗi ngày' },
-      { name: 'Động Mạch Chủ', description: 'Động mạch lớn nhất', detail: 'Đưa máu giàu oxy từ tim đi khắp cơ thể' },
-      { name: 'Động Mạch', description: 'Mạch máu mang máu đỏ tươi', detail: 'Chứa máu giàu oxy từ tim đi' },
-      { name: 'Tĩnh Mạch', description: 'Mạch máu mang máu đỏ sẫm', detail: 'Đưa máu nghèo oxy về tim' },
-      { name: 'Mao Mạch', description: 'Mạch máu siêu nhỏ', detail: 'Nơi trao đổi oxy và chất dinh dưỡng' },
-      { name: 'Hồng Cầu', description: 'Tế bào máu đỏ', detail: 'Vận chuyển oxy đi khắp cơ thể' },
-      { name: 'Bạch Cầu', description: 'Tế bào máu trắng', detail: 'Chiến đấu chống lại vi khuẩn và virus' },
+      { nameEn: 'Heart', nameVi: 'Tim', description: 'Cơ quan bơm máu', detail: 'Đập khoảng 100,000 lần mỗi ngày' },
+      { nameEn: 'Left Ventricle', nameVi: 'Tâm Thất Trái', description: 'Buồng tim mạnh nhất', detail: 'Bơm máu giàu oxy đi khắp cơ thể' },
+      { nameEn: 'Right Ventricle', nameVi: 'Tâm Thất Phải', description: 'Buồng tim dưới phải', detail: 'Bơm máu nghèo oxy đến phổi' },
+      { nameEn: 'Left Atrium', nameVi: 'Tâm Nhĩ Trái', description: 'Buồng tim trên trái', detail: 'Nhận máu giàu oxy từ phổi' },
+      { nameEn: 'Right Atrium', nameVi: 'Tâm Nhĩ Phải', description: 'Buồng tim trên phải', detail: 'Nhận máu nghèo oxy từ cơ thể' },
+      { nameEn: 'Aorta', nameVi: 'Động Mạch Chủ', description: 'Động mạch lớn nhất', detail: 'Đưa máu giàu oxy từ tim đi khắp cơ thể' },
+      { nameEn: 'Pulmonary Artery', nameVi: 'Động Mạch Phổi', description: 'Mạch máu đến phổi', detail: 'Đưa máu nghèo oxy đến phổi để lấy oxy' },
+      { nameEn: 'Coronary Arteries', nameVi: 'Động Mạch Vành', description: 'Nuôi dưỡng cơ tim', detail: 'Tắc động mạch vành gây nhồi máu cơ tim' },
+      { nameEn: 'Vena Cava', nameVi: 'Tĩnh Mạch Chủ', description: 'Tĩnh mạch lớn nhất', detail: 'Đưa máu nghèo oxy về tim' },
+      { nameEn: 'Mitral Valve', nameVi: 'Van Hai Lá', description: 'Van giữa nhĩ-thất trái', detail: 'Ngăn máu chảy ngược' },
     ],
   },
   respiratory: {
     title: 'Hệ Hô Hấp',
     description: 'Hệ hô hấp giúp cơ thể lấy oxy từ không khí và thải khí CO2. Phổi là cơ quan chính của hệ này.',
     funFact: 'Phổi trái nhỏ hơn phổi phải để nhường chỗ cho tim. Tổng diện tích bề mặt phổi bằng một sân tennis!',
+    source: 'E-learning UMCG - Anatomy of the Airways',
     parts: [
-      { name: 'Mũi', description: 'Cửa ngõ không khí vào cơ thể', detail: 'Lọc bụi và làm ấm không khí' },
-      { name: 'Khí Quản', description: 'Ống dẫn khí chính', detail: 'Dài khoảng 10-12 cm' },
-      { name: 'Phế Quản', description: 'Nhánh của khí quản', detail: 'Chia thành phế quản trái và phải' },
-      { name: 'Phổi Phải', description: 'Phổi bên phải', detail: 'Có 3 thùy, lớn hơn phổi trái' },
-      { name: 'Phổi Trái', description: 'Phổi bên trái', detail: 'Có 2 thùy, nhỏ hơn để nhường chỗ cho tim' },
-      { name: 'Phế Nang', description: 'Túi khí siêu nhỏ trong phổi', detail: 'Khoảng 300 triệu phế nang ở mỗi người' },
-      { name: 'Cơ Hoành', description: 'Cơ hô hấp chính', detail: 'Co giãn để hít vào và thở ra' },
+      { nameEn: 'Trachea', nameVi: 'Khí Quản', description: 'Ống dẫn khí chính', detail: 'Dài khoảng 10-12 cm' },
+      { nameEn: 'Carina', nameVi: 'Mào Khí Quản', description: 'Điểm phân chia', detail: 'Nơi khí quản chia thành 2 phế quản' },
+      { nameEn: 'Left Bronchus', nameVi: 'Phế Quản Trái', description: 'Nhánh vào phổi trái', detail: 'Dài và nghiêng hơn phế quản phải' },
+      { nameEn: 'Right Bronchus', nameVi: 'Phế Quản Phải', description: 'Nhánh vào phổi phải', detail: 'Ngắn và thẳng hơn, dễ hít dị vật' },
+      { nameEn: 'Bronchioles', nameVi: 'Tiểu Phế Quản', description: 'Nhánh nhỏ của phế quản', detail: 'Chia nhỏ dần đến phế nang' },
+      { nameEn: 'Right Lung', nameVi: 'Phổi Phải', description: 'Phổi bên phải', detail: 'Có 3 thùy, lớn hơn phổi trái' },
+      { nameEn: 'Left Lung', nameVi: 'Phổi Trái', description: 'Phổi bên trái', detail: 'Có 2 thùy, nhỏ hơn để nhường chỗ cho tim' },
+      { nameEn: 'Alveoli', nameVi: 'Phế Nang', description: 'Túi khí siêu nhỏ', detail: 'Khoảng 300 triệu phế nang ở mỗi người' },
+      { nameEn: 'Diaphragm', nameVi: 'Cơ Hoành', description: 'Cơ hô hấp chính', detail: 'Co giãn để hít vào và thở ra' },
     ],
   },
   digestive: {
     title: 'Hệ Tiêu Hóa',
     description: 'Hệ tiêu hóa phân giải thức ăn thành chất dinh dưỡng để cơ thể hấp thu. Quá trình này mất khoảng 24-72 giờ.',
     funFact: 'Ruột non dài khoảng 6-7 mét, nhưng nếu trải phẳng bề mặt bên trong, nó có diện tích bằng một sân tennis!',
+    source: 'adimed - Digestive System',
     parts: [
-      { name: 'Miệng', description: 'Nơi bắt đầu tiêu hóa', detail: 'Răng nghiền thức ăn, nước bọt phân giải tinh bột' },
-      { name: 'Thực Quản', description: 'Ống nối miệng với dạ dày', detail: 'Dài khoảng 25 cm' },
-      { name: 'Dạ Dày', description: 'Túi chứa và nghiền thức ăn', detail: 'Acid trong dạ dày mạnh đến mức có thể hòa tan kim loại' },
-      { name: 'Gan', description: 'Cơ quan lớn nhất bên trong cơ thể', detail: 'Thực hiện hơn 500 chức năng khác nhau' },
-      { name: 'Túi Mật', description: 'Chứa mật do gan tạo ra', detail: 'Mật giúp tiêu hóa chất béo' },
-      { name: 'Tụy', description: 'Tiết enzyme tiêu hóa', detail: 'Cũng sản xuất insulin điều hòa đường huyết' },
-      { name: 'Ruột Non', description: 'Nơi hấp thu dinh dưỡng', detail: 'Dài 6-7 mét, hấp thu 90% chất dinh dưỡng' },
-      { name: 'Ruột Già', description: 'Hấp thu nước và tạo phân', detail: 'Dài khoảng 1.5 mét' },
+      { nameEn: 'Oral Cavity / Mouth', nameVi: 'Khoang Miệng', description: 'Nơi bắt đầu tiêu hóa', detail: 'Răng nghiền thức ăn, nước bọt phân giải tinh bột' },
+      { nameEn: 'Esophagus', nameVi: 'Thực Quản', description: 'Ống nối miệng với dạ dày', detail: 'Dài khoảng 25 cm' },
+      { nameEn: 'Stomach', nameVi: 'Dạ Dày', description: 'Túi chứa và nghiền thức ăn', detail: 'Acid trong dạ dày mạnh đến mức có thể hòa tan kim loại' },
+      { nameEn: 'Liver', nameVi: 'Gan', description: 'Cơ quan lớn nhất bên trong', detail: 'Thực hiện hơn 500 chức năng khác nhau' },
+      { nameEn: 'Gallbladder', nameVi: 'Túi Mật', description: 'Chứa mật do gan tạo ra', detail: 'Mật giúp tiêu hóa chất béo' },
+      { nameEn: 'Pancreas', nameVi: 'Tuyến Tụy', description: 'Tiết enzyme tiêu hóa', detail: 'Cũng sản xuất insulin điều hòa đường huyết' },
+      { nameEn: 'Small Intestine', nameVi: 'Ruột Non', description: 'Nơi hấp thu dinh dưỡng', detail: 'Dài 6-7 mét, hấp thu 90% chất dinh dưỡng' },
+      { nameEn: 'Large Intestine / Colon', nameVi: 'Ruột Già', description: 'Hấp thu nước và tạo phân', detail: 'Dài khoảng 1.5 mét' },
+      { nameEn: 'Appendix', nameVi: 'Ruột Thừa', description: 'Phần nhỏ ở đầu ruột già', detail: 'Có thể chứa vi khuẩn có lợi' },
+      { nameEn: 'Spleen', nameVi: 'Lá Lách', description: 'Lọc máu và miễn dịch', detail: 'Phá hủy tế bào máu cũ' },
     ],
   },
   nervous: {
     title: 'Hệ Thần Kinh',
     description: 'Hệ thần kinh là "trung tâm điều khiển" của cơ thể, gồm não, tủy sống và các dây thần kinh. Nó điều khiển mọi hoạt động từ suy nghĩ đến nhịp tim.',
     funFact: 'Não người có khoảng 86 tỷ tế bào thần kinh (neuron), và mỗi neuron có thể kết nối với 10,000 neuron khác!',
+    source: 'University of Dundee, CAHID - Abigail de Rancourt',
     parts: [
-      { name: 'Đại Não', description: 'Phần lớn nhất của não', detail: 'Chịu trách nhiệm suy nghĩ, học tập, cảm xúc' },
-      { name: 'Tiểu Não', description: 'Phần sau não', detail: 'Điều khiển thăng bằng và phối hợp cử động' },
-      { name: 'Thân Não', description: 'Nối não với tủy sống', detail: 'Điều khiển nhịp thở, tim đập' },
-      { name: 'Tủy Sống', description: 'Dây thần kinh trong cột sống', detail: 'Truyền tín hiệu giữa não và cơ thể' },
-      { name: 'Dây Thần Kinh', description: 'Mạng lưới dây dẫn tín hiệu', detail: 'Truyền tín hiệu với tốc độ 120 m/s' },
-      { name: 'Thùy Trán', description: 'Phần trước đại não', detail: 'Điều khiển tính cách, quyết định, ngôn ngữ' },
-      { name: 'Thùy Đỉnh', description: 'Phần trên đại não', detail: 'Xử lý xúc giác và không gian' },
-      { name: 'Thùy Chẩm', description: 'Phần sau đại não', detail: 'Xử lý hình ảnh từ mắt' },
+      { nameEn: 'Brain / Cerebrum', nameVi: 'Đại Não', description: 'Phần lớn nhất của não', detail: 'Chịu trách nhiệm suy nghĩ, học tập, cảm xúc' },
+      { nameEn: 'Frontal Lobe', nameVi: 'Thùy Trán', description: 'Phần trước đại não', detail: 'Điều khiển tính cách, quyết định, ngôn ngữ' },
+      { nameEn: 'Parietal Lobe', nameVi: 'Thùy Đỉnh', description: 'Phần trên đại não', detail: 'Xử lý xúc giác và không gian' },
+      { nameEn: 'Temporal Lobe', nameVi: 'Thùy Thái Dương', description: 'Phần bên đại não', detail: 'Xử lý âm thanh và ký ức' },
+      { nameEn: 'Occipital Lobe', nameVi: 'Thùy Chẩm', description: 'Phần sau đại não', detail: 'Xử lý hình ảnh từ mắt' },
+      { nameEn: 'Cerebellum', nameVi: 'Tiểu Não', description: 'Phần sau não', detail: 'Điều khiển thăng bằng và phối hợp cử động' },
+      { nameEn: 'Brain Stem / Brainstem', nameVi: 'Thân Não', description: 'Nối não với tủy sống', detail: 'Điều khiển nhịp thở, tim đập' },
+      { nameEn: 'Spinal Cord', nameVi: 'Tủy Sống', description: 'Dây thần kinh trong cột sống', detail: 'Truyền tín hiệu giữa não và cơ thể' },
+      { nameEn: 'Spinal Nerves', nameVi: 'Dây Thần Kinh Tủy', description: '31 cặp dây thần kinh', detail: 'Truyền tín hiệu với tốc độ 120 m/s' },
+      { nameEn: 'Vertebral Column', nameVi: 'Cột Sống', description: 'Bảo vệ tủy sống', detail: '33 đốt sống tạo thành ống bảo vệ' },
     ],
   },
 };
@@ -252,7 +409,6 @@ function SystemItem({
 function SketchfabViewer({ modelKey }: { modelKey: string }) {
   const model = SKETCHFAB_MODELS[modelKey] || SKETCHFAB_MODELS.full;
 
-  // Build Sketchfab embed URL with options
   const params = new URLSearchParams({
     autostart: '1',
     ui_theme: 'dark',
@@ -267,6 +423,7 @@ function SketchfabViewer({ modelKey }: { modelKey: string }) {
     ui_annotations: '1',
     transparent: '1',
     camera: '0',
+    annotation_cycle: '5',
   });
   const embedUrl = `https://sketchfab.com/models/${model.uid}/embed?${params.toString()}`;
 
@@ -281,7 +438,7 @@ function SketchfabViewer({ modelKey }: { modelKey: string }) {
   );
 }
 
-// Annotation panel component
+// Annotation panel component with English-Vietnamese translation
 function AnnotationPanel({
   systemKey,
   onClose
@@ -290,9 +447,20 @@ function AnnotationPanel({
   onClose: () => void;
 }) {
   const [hoveredPart, setHoveredPart] = useState<number | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const annotation = SYSTEM_ANNOTATIONS[systemKey] || SYSTEM_ANNOTATIONS.full;
+  const translations = ANNOTATION_TRANSLATIONS[systemKey] || {};
   const systemInfo = bodySystems.find(s => s.id === systemKey);
   const systemColor = systemInfo?.color || '#3B82F6';
+  const model = SKETCHFAB_MODELS[systemKey] || SKETCHFAB_MODELS.full;
+
+  // Filter parts based on search (both English and Vietnamese)
+  const filteredParts = annotation.parts.filter(part => {
+    const search = searchTerm.toLowerCase();
+    return part.nameVi.toLowerCase().includes(search) ||
+           part.nameEn.toLowerCase().includes(search) ||
+           part.description.toLowerCase().includes(search);
+  });
 
   return (
     <motion.div
@@ -305,7 +473,7 @@ function AnnotationPanel({
       <div className="p-4 border-b border-slate-700">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-lg font-bold text-white flex items-center gap-2">
-            <Info className="w-5 h-5" style={{ color: systemColor }} />
+            <Languages className="w-5 h-5" style={{ color: systemColor }} />
             {annotation.title}
           </h3>
           <button
@@ -315,9 +483,16 @@ function AnnotationPanel({
             <X className="w-4 h-4 text-slate-400" />
           </button>
         </div>
-        <p className="text-sm text-slate-300 leading-relaxed">
+        <p className="text-sm text-slate-300 leading-relaxed mb-3">
           {annotation.description}
         </p>
+        {model.hasAnnotations && (
+          <div className="bg-blue-500/20 border border-blue-500/30 rounded-lg p-2">
+            <p className="text-xs text-blue-300">
+              💡 <strong>Mẹo:</strong> Nhấn vào các điểm đánh số trên mô hình 3D để xem chú thích tiếng Anh, sau đó tìm bản dịch tiếng Việt bên dưới.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Fun Fact */}
@@ -331,13 +506,25 @@ function AnnotationPanel({
         </div>
       </div>
 
-      {/* Parts List */}
+      {/* Search */}
+      <div className="px-3 py-2 border-b border-slate-700">
+        <input
+          type="text"
+          placeholder="Tìm kiếm (VD: Heart, Tim...)"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full bg-slate-700/50 text-white text-sm rounded-lg px-3 py-2 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      {/* Parts List with English-Vietnamese */}
       <div className="flex-1 overflow-y-auto p-3">
-        <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 px-1">
-          Các bộ phận chính
+        <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 px-1 flex items-center gap-2">
+          <span>Từ điển Anh - Việt</span>
+          <span className="text-slate-500">({filteredParts.length})</span>
         </h4>
         <div className="space-y-1">
-          {annotation.parts.map((part, index) => (
+          {filteredParts.map((part, index) => (
             <div
               key={index}
               className="relative"
@@ -357,8 +544,13 @@ function AnnotationPanel({
                     style={{ backgroundColor: systemColor }}
                   />
                   <div className="flex-1 min-w-0">
-                    <h5 className="text-sm font-medium text-white">
-                      {part.name}
+                    {/* English name */}
+                    <p className="text-xs text-blue-400 font-medium">
+                      🇬🇧 {part.nameEn}
+                    </p>
+                    {/* Vietnamese name */}
+                    <h5 className="text-sm font-semibold text-white">
+                      🇻🇳 {part.nameVi}
                     </h5>
                     <p className="text-xs text-slate-400 leading-relaxed">
                       {part.description}
@@ -388,12 +580,36 @@ function AnnotationPanel({
             </div>
           ))}
         </div>
+
+        {/* Additional translations from model annotations */}
+        {Object.keys(translations).length > 0 && (
+          <div className="mt-4 pt-4 border-t border-slate-700">
+            <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 px-1">
+              Thuật ngữ khác trong mô hình
+            </h4>
+            <div className="space-y-1">
+              {Object.entries(translations)
+                .filter(([en]) => !annotation.parts.some(p => p.nameEn.includes(en)))
+                .slice(0, 10)
+                .map(([en, { vi, description }]) => (
+                  <div key={en} className="p-2 bg-slate-700/30 rounded text-xs">
+                    <span className="text-blue-400">{en}</span>
+                    <span className="text-slate-500 mx-1">→</span>
+                    <span className="text-white font-medium">{vi}</span>
+                    {description && (
+                      <p className="text-slate-500 mt-0.5">{description}</p>
+                    )}
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Footer */}
       <div className="p-3 border-t border-slate-700 bg-slate-800/50">
         <p className="text-[10px] text-slate-500 text-center">
-          Di chuột vào từng bộ phận để xem chi tiết
+          Nguồn: {annotation.source}
         </p>
       </div>
     </motion.div>
@@ -431,6 +647,7 @@ export default function ExplorerPage() {
   }, [setActiveSystem]);
 
   const currentSystem = bodySystems.find(s => s.id === activeModelKey);
+  const currentModel = SKETCHFAB_MODELS[activeModelKey];
 
   return (
     <>
@@ -478,7 +695,7 @@ export default function ExplorerPage() {
             {/* Credits */}
             <div className="p-3 border-t border-slate-700">
               <p className="text-[10px] text-slate-500 text-center">
-                Mô hình 3D được cung cấp bởi{' '}
+                Mô hình 3D từ{' '}
                 <a
                   href="https://sketchfab.com"
                   target="_blank"
@@ -487,6 +704,7 @@ export default function ExplorerPage() {
                 >
                   Sketchfab
                 </a>
+                {' '}& University of Dundee
               </p>
             </div>
           </motion.div>
@@ -511,6 +729,11 @@ export default function ExplorerPage() {
                     </span>
                   )}
                 </h1>
+                {currentModel?.hasAnnotations && (
+                  <p className="text-xs text-green-400 text-center mt-1">
+                    ✓ Có chú thích chi tiết
+                  </p>
+                )}
               </div>
             </motion.div>
 
@@ -522,8 +745,8 @@ export default function ExplorerPage() {
                 className="absolute top-4 right-4 bg-slate-800/90 hover:bg-slate-700 text-white px-3 py-2 rounded-lg border border-slate-600 flex items-center gap-2 text-sm transition-colors"
                 onClick={() => setShowAnnotations(true)}
               >
-                <Info className="w-4 h-4" />
-                Hiện chú thích
+                <Languages className="w-4 h-4" />
+                Từ điển Anh-Việt
               </motion.button>
             )}
 
@@ -537,12 +760,12 @@ export default function ExplorerPage() {
               <div className="bg-slate-900/80 backdrop-blur-sm rounded-lg px-4 py-2 border border-slate-700 flex items-center gap-4 text-xs text-slate-400">
                 <span>🖱️ Kéo để xoay</span>
                 <span>🔍 Cuộn để zoom</span>
-                <span>👆 Chọn hệ cơ quan ở bên trái</span>
+                <span>📍 Nhấn số để xem chú thích</span>
               </div>
             </motion.div>
           </div>
 
-          {/* Right Panel - Annotations */}
+          {/* Right Panel - Annotations with English-Vietnamese */}
           <AnimatePresence>
             {showAnnotations && (
               <AnnotationPanel
