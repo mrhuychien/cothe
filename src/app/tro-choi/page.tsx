@@ -8,14 +8,13 @@ import { useQuizStore } from '@/stores/useQuizStore';
 import { useLanguageStore } from '@/stores/useLanguageStore';
 import { Organ } from '@/types';
 
-// Dynamic import for 3D Scene (SSR disabled)
 const Scene = dynamic(() => import('@/components/3d/Scene'), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-full flex items-center justify-center bg-gradient-to-b from-cream to-mint/30">
+    <div className="w-full h-full flex items-center justify-center bg-gradient-to-b from-slate-900 to-slate-950">
       <div className="text-center">
         <div className="text-6xl mb-4 animate-bounce">🎮</div>
-        <p className="text-lg text-gray-600 font-body">Đang tải trò chơi...</p>
+        <p className="text-lg text-slate-400 font-body">Dang tai tro choi...</p>
       </div>
     </div>
   ),
@@ -29,19 +28,16 @@ export default function QuizPage() {
 
   const handleOrganClick = (organ: Organ) => {
     if (!currentQuestion || lastAnswer) return;
-
     checkAnswer(organ.id);
-
-    // Auto advance after feedback
     setTimeout(() => {
       nextQuestion();
     }, 1500);
   };
 
   return (
-    <>
+    <div className="bg-slate-950 min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 pt-16 bg-gradient-to-b from-cream to-mint/30">
+      <main className="flex-1 pt-16">
         <div className="h-[calc(100vh-4rem)] flex flex-col lg:flex-row">
           {/* Quiz Card */}
           <motion.div
@@ -65,8 +61,8 @@ export default function QuizPage() {
               animate={{ opacity: 1, y: 0 }}
               className="absolute top-4 left-1/2 -translate-x-1/2"
             >
-              <div className="bg-white/90 backdrop-blur-sm rounded-full px-6 py-2 shadow-kid">
-                <h1 className="font-heading text-xl font-bold text-foreground">
+              <div className="bg-slate-900/80 backdrop-blur-xl rounded-full px-6 py-2 border border-slate-700/50">
+                <h1 className="font-heading text-xl font-bold text-white">
                   🎯 {t('quizTitle')}
                 </h1>
               </div>
@@ -74,6 +70,6 @@ export default function QuizPage() {
           </div>
         </div>
       </main>
-    </>
+    </div>
   );
 }

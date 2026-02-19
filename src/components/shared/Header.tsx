@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Compass, Gamepad2, Home } from 'lucide-react';
 import { useState } from 'react';
 import { useLanguageStore } from '@/stores/useLanguageStore';
 import LanguageToggle from './LanguageToggle';
@@ -12,71 +12,84 @@ export default function Header() {
   const { t } = useLanguageStore();
 
   const navItems = [
-    { href: '/', label: t('home') },
-    { href: '/kham-pha', label: t('explore') },
-    { href: '/tro-choi', label: t('quiz') },
+    { href: '/', label: t('home'), icon: Home },
+    { href: '/kham-pha', label: t('explore'), icon: Compass },
+    { href: '/tro-choi', label: t('quiz'), icon: Gamepad2 },
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-cream/90 backdrop-blur-md shadow-sm">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-slate-900/80 backdrop-blur-xl border-b border-slate-700/50">
       <nav className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-3">
             <motion.div
               whileHover={{ rotate: 10 }}
-              className="text-3xl"
+              className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/25"
             >
-              🫀
+              <span className="text-xl">🫀</span>
             </motion.div>
-            <span className="font-heading text-2xl font-bold bg-gradient-to-r from-primary-500 to-circulatory bg-clip-text text-transparent">
-              CoThe.Info
-            </span>
+            <div>
+              <span className="font-heading text-xl font-bold text-white">CoThe.Info</span>
+              <p className="text-[10px] text-slate-400 uppercase tracking-widest">Atlas 3D</p>
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-6">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="font-body text-lg font-medium text-foreground hover:text-primary-500 transition-colors"
-              >
-                {item.label}
-              </Link>
-            ))}
-            <LanguageToggle />
+          <div className="hidden md:flex items-center gap-1">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 transition-all"
+                >
+                  <Icon className="w-4 h-4" />
+                  {item.label}
+                </Link>
+              );
+            })}
+            <div className="ml-2 pl-2 border-l border-slate-700/50">
+              <LanguageToggle />
+            </div>
           </div>
 
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 touch-target"
+            className="md:hidden p-2 rounded-xl hover:bg-slate-800/60 transition-colors touch-target"
           >
-            {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+            {isMenuOpen ? <X className="w-6 h-6 text-white" /> : <Menu className="w-6 h-6 text-white" />}
           </button>
         </div>
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="md:hidden absolute top-full left-0 right-0 bg-cream shadow-lg py-4"
+            exit={{ opacity: 0, y: -10 }}
+            className="md:hidden absolute top-full left-0 right-0 bg-slate-900/95 backdrop-blur-xl border-b border-slate-700/50 py-4 px-4"
           >
-            <div className="flex flex-col items-center gap-4">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setIsMenuOpen(false)}
-                  className="font-body text-xl font-medium text-foreground hover:text-primary-500 transition-colors touch-target"
-                >
-                  {item.label}
-                </Link>
-              ))}
-              <LanguageToggle />
+            <div className="flex flex-col gap-1">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setIsMenuOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 transition-all touch-target"
+                  >
+                    <Icon className="w-5 h-5" />
+                    {item.label}
+                  </Link>
+                );
+              })}
+              <div className="pt-2 mt-2 border-t border-slate-700/50 flex justify-center">
+                <LanguageToggle />
+              </div>
             </div>
           </motion.div>
         )}

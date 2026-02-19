@@ -23,12 +23,12 @@ export default function Button({
   type = 'button',
 }: ButtonProps) {
   const baseStyles =
-    'font-heading font-semibold rounded-kid touch-target inline-flex items-center justify-center transition-all duration-200';
+    'font-heading font-semibold rounded-xl touch-target inline-flex items-center justify-center transition-all duration-200';
 
   const variants = {
-    primary: 'bg-gradient-to-r from-primary-400 to-primary-500 text-white shadow-kid hover:shadow-kid-hover hover:scale-105',
-    secondary: 'bg-gradient-to-r from-mint to-sky text-foreground shadow-kid hover:shadow-kid-hover hover:scale-105',
-    outline: 'border-2 border-primary-400 text-primary-500 hover:bg-primary-50 hover:scale-105',
+    primary: 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-105',
+    secondary: 'bg-slate-800 text-white border border-slate-700/50 hover:bg-slate-700 hover:scale-105',
+    outline: 'border border-blue-500/50 text-blue-400 hover:bg-blue-500/10 hover:scale-105',
   };
 
   const sizes = {
