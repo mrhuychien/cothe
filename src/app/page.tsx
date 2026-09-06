@@ -1,7 +1,7 @@
 'use client';
 
 import { Header, Footer } from '@/components/shared';
-import { Hero, Features, ParentInfo } from '@/components/landing';
+import { Hero, Features, AtlasTeaser, ParentInfo } from '@/components/landing';
 
 export default function HomePage() {
   return (
@@ -10,6 +10,7 @@ export default function HomePage() {
       <main className="flex-1">
         <Hero />
         <Features />
+        <AtlasTeaser />
         <ParentInfo />
       </main>
       <Footer />

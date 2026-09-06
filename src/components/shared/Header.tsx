@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Menu, X, Compass, Gamepad2, Home } from 'lucide-react';
+import { Menu, X, Compass, Gamepad2, Home, Boxes } from 'lucide-react';
 import { useState } from 'react';
 import { useLanguageStore } from '@/stores/useLanguageStore';
 import LanguageToggle from './LanguageToggle';
@@ -14,6 +14,7 @@ export default function Header() {
   const navItems = [
     { href: '/', label: t('home'), icon: Home },
     { href: '/kham-pha', label: t('explore'), icon: Compass },
+    { href: '/atlas', label: t('atlas'), icon: Boxes },
     { href: '/tro-choi', label: t('quiz'), icon: Gamepad2 },
   ];
 

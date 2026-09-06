@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Play, Gamepad2, Sparkles, ArrowRight } from 'lucide-react';
+import { Play, Gamepad2, Sparkles, ArrowRight, Boxes } from 'lucide-react';
 import { useLanguageStore } from '@/stores/useLanguageStore';
 
 export default function Hero() {
@@ -65,6 +65,16 @@ export default function Hero() {
                   <Play className="w-5 h-5" />
                   {t('startExploring')}
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </motion.button>
+              </Link>
+              <Link href="/atlas">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="flex items-center gap-2 px-8 py-4 rounded-xl bg-slate-800/80 text-white border border-blue-500/40 font-heading font-semibold text-lg hover:bg-slate-700/80 transition-all"
+                >
+                  <Boxes className="w-5 h-5 text-blue-400" />
+                  {t('atlasOpen')}
                 </motion.button>
               </Link>
               <Link href="/tro-choi">
@@ -166,9 +176,9 @@ export default function Hero() {
           className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-4"
         >
           {[
-            { value: '20+', label: 'Mo hinh 3D' },
-            { value: '6', label: 'He co quan' },
-            { value: '100+', label: 'Chu thich' },
+            { value: '2.234', label: 'Manh giai phau 3D' },
+            { value: '15', label: 'He co quan' },
+            { value: '3.432', label: 'Khai niem tra cuu' },
             { value: '2', label: 'Ngon ngu' },
           ].map((stat, i) => (
             <div key={i} className="text-center p-4 rounded-xl bg-slate-800/30 border border-slate-700/30">

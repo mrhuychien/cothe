@@ -4,6 +4,7 @@ export const translations = {
     home: 'Trang chủ',
     explore: 'Khám phá',
     quiz: 'Trò chơi',
+    atlas: 'Atlas 3D',
     forParents: 'Phụ huynh',
 
     // Hero
@@ -30,6 +31,18 @@ export const translations = {
     digestive: 'Hệ Tiêu Hóa',
     respiratory: 'Hệ Hô Hấp',
     nervous: 'Hệ Thần Kinh',
+
+    // Atlas 3D
+    atlasBadge: 'MỚI · DỮ LIỆU BODYPARTS3D',
+    atlasTitle: 'Atlas Giải Phẫu 3D đầy đủ',
+    atlasDesc:
+      'Toàn bộ cơ thể người dựng từ 2.234 lưới giải phẫu riêng biệt. Bật tắt từng hệ cơ quan, kéo thanh trượt để tách rời cả cơ thể thành từng mảnh, rồi chạm vào bất kỳ cấu trúc nào để đọc chi tiết.',
+    atlasPoint1: '15 hệ cơ quan bật tắt độc lập',
+    atlasPoint2: 'Tra cứu 3.432 khái niệm giải phẫu',
+    atlasPoint3: 'Tách riêng và soi kỹ từng cấu trúc',
+    atlasOpen: 'Mở Atlas 3D',
+    atlasNote:
+      'Lần đầu truy cập cần tải khoảng 32 MB dữ liệu 3D. Phù hợp với học sinh lớn, giáo viên và phụ huynh.',
 
     // Explorer
     selectSystem: 'Chọn hệ cơ quan',
@@ -73,6 +86,7 @@ export const translations = {
     home: 'Home',
     explore: 'Explore',
     quiz: 'Quiz Game',
+    atlas: '3D Atlas',
     forParents: 'For Parents',
 
     // Hero
@@ -99,6 +113,18 @@ export const translations = {
     digestive: 'Digestive System',
     respiratory: 'Respiratory System',
     nervous: 'Nervous System',
+
+    // Atlas 3D
+    atlasBadge: 'NEW · BODYPARTS3D DATA',
+    atlasTitle: 'The complete 3D Anatomy Atlas',
+    atlasDesc:
+      'A whole human body built from 2,234 individual anatomical meshes. Toggle any system, drag the slider to take the entire body apart piece by piece, then tap any structure to read about it.',
+    atlasPoint1: '15 independently toggleable systems',
+    atlasPoint2: 'Search 3,432 named anatomical concepts',
+    atlasPoint3: 'Isolate and inspect any single structure',
+    atlasOpen: 'Open the 3D Atlas',
+    atlasNote:
+      'The first visit downloads about 32 MB of 3D geometry. Best for older students, teachers and parents.',
 
     // Explorer
     selectSystem: 'Select a system',

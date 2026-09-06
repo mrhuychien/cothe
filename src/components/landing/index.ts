@@ -1,3 +1,4 @@
 export { default as Hero } from './Hero';
 export { default as Features } from './Features';
 export { default as ParentInfo } from './ParentInfo';
+export { default as AtlasTeaser } from './AtlasTeaser';
